@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COBIT ERP Workflow & Security Roles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!--
+    Color Palette: Brilliant Blues & Energetic Accents
+    HEX Codes: #003f5c (Navy), #7a5195 (Purple), #ef5675 (Pink), #ffa600 (Orange), #f0f4f8 (Light Gray Background), #ffffff (White)
+    Confirmation: NEITHER Mermaid JS NOR SVG were used for diagrams. All diagrams are structured HTML/CSS.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        .section-header {
+            color: #003f5c;
+            border-bottom: 2px solid #7a5195;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            padding: 1.5rem; /* p-6 */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        .persona-card {
+            background-color: #f8fafc; /* light blue-gray */
+            border-left: 4px solid #7a5195;
+        }
+        .workflow-step {
+            background-color: #ffffff;
+            border-left: 4px solid;
+            border-radius: 0.5rem; /* rounded-md */
+            padding: 1rem; /* p-4 */
+            margin-bottom: 1rem; /* mb-4 */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .workflow-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .oracle-step { border-color: #7a5195; } /* Purple */
+        .tyler-step { border-color: #ef5675; } /* Pink */
+        .no-access-step { border-color: #cbd5e1; background-color: #f8fafc; } /* Gray */
+
+        .system-interaction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+        .system-interaction-item {
+            background-color: #f0f4f8;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .system-interaction-item svg {
+            margin-bottom: 0.5rem;
+        }
+        .system-interaction-item.oracle { border-bottom: 3px solid #7a5195; }
+        .system-interaction-item.tyler { border-bottom: 3px solid #ef5675; }
+        .system-interaction-item.no-access { border-bottom: 3px solid #cbd5e1; }
+
+        .role-house {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            margin-bottom: 2rem;
+            border-bottom: 5px solid;
+        }
+        .role-house.ap { border-color: #7a5195; }
+        .role-house.ar { border-color: #ef5675; }
+        .role-house.gl { border-color: #ffa600; }
+        .role-house.fa { border-color: #003f5c; }
+        .role-house.cm { border-color: #7a5195; }
+        .role-house.budget { border-color: #ef5675; }
+
+        .role-house::before {
+            content: '';
+            position: absolute;
+            top: -20px; /* Adjust to control height of the "roof" */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 20px solid; /* Color will be inherited */
+        }
+        .role-house.ap::before { border-bottom-color: #7a5195; }
+        .role-house.ar::before { border-bottom-color: #ef5675; }
+        .role-house.gl::before { border-bottom-color: #ffa600; }
+        .role-house.fa::before { border-bottom-color: #003f5c; }
+        .role-house.cm::before { border-bottom-color: #7a5195; }
+        .role-house.budget::before { border-bottom-color: #ef5675; }
+
+        .role-icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #e0f2f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -35px auto 10px auto; /* Adjust to position icon on the roof */
+            border: 2px solid #2e86de;
+            position: relative;
+            z-index: 1;
+        }
+        .role-icon-circle svg {
+            color: #2e86de;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="bg-[#003f5c] text-white p-8 text-center shadow-lg rounded-lg mb-8">
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight">ERP Workflow & Security Roles</h1>
+        <p class="mt-4 text-lg max-w-3xl mx-auto text-gray-300">A Deep Dive into Accounts Payable Processes and Role Interactions within Oracle Cloud for the City of Birmingham.</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto">
+
+        <section id="persona-mapping" class="mb-12">
+            <h2 class="text-3xl font-bold section-header">Persona Mapping & ERP Security Roles</h2>
+            <p class="mb-8 text-gray-700">Understanding how security roles align with ERP modules is crucial for efficient operations. This section maps key roles to their respective financial modules within Oracle Cloud.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="role-house ap">
+                    <div class="role-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#7a5195] mb-2">Account Payable</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 text-left">
+                        <li>Accounts Payable Manager</li>
+                        <li>Accounts Payable Supervisor</li>
+                        <li>Accounts Payable Specialist</li>
+                        <li>Expense Auditor</li>
+                        <li>Expense Auditor Mgt</li>
+                    </ul>
+                </div>
+
+                <div class="role-house ar">
+                    <div class="role-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#ef5675] mb-2">Account Receivable</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 text-left">
+                        <li>Accounts Receivables Specialist</li>
+                        <li>Accounts Receivables Manager</li>
+                    </ul>
+                </div>
+
+                <div class="role-house gl">
+                    <div class="role-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#ffa600] mb-2">General Accountant GL</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 text-left">
+                        <li>General Accountant(GL)</li>
+                        <li>General Accounting Manager(GL)</li>
+                        <li>Financial Analyst(GL)</li>
+                    </ul>
+                </div>
+
+                <div class="role-house fa">
+                    <div class="role-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-briefcase"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#003f5c] mb-2">Fixed Assets</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 text-left">
+                        <li>Assets Accountant</li>
+                        <li>Asset Accountant Manager</li>
+                    </ul>
+                </div>
+
+                <div class="role-house cm">
+                    <div class="role-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#7a5195] mb-2">Cash Management</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 text-left">
+                        <li>Cash Manager</li>
+                    </ul>
+                </div>
+
+                <div class="role-house budget">
+                    <div class="role-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#ef5675] mb-2">Budget</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 text-left">
+                        <li>Budget Manager</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="ap-specialist-workflow" class="mb-12">
+            <h2 class="text-3xl font-bold section-header">Accounts Payable Specialist Workflow</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="card persona-card">
+                        <div class="flex items-center justify-center mb-4">
+                            <img src="https://placehold.co/120x120/7a5195/ffffff?text=AP+Specialist" alt="AP Specialist Persona" class="rounded-full border-4 border-[#7a5195]">
+                        </div>
+                        <p class="text-gray-700 text-sm">Accounts Payable Specialists will use their desktop computer to log into Oracle Cloud and manage invoice processing and payments. They will enter, match, and validate supplier invoices, initiate payment runs, and monitor payment status. Daily tasks include entering new invoices, validating entries, and resolving discrepancies. As needed, they will handle payment runs, reconcile transactions, and support monthly close activities.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h4 class="font-bold text-[#003f5c] mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell mr-2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications & Approvals</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Use the Bell Icon for alerts (e.g., invoice approvals, errors).</li>
+                                <li>AP Specialist may also get approval reminders via email upon go-live.</li>
+                            </ul>
+                            <h4 class="font-bold text-[#003f5c] mt-4 mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smartphone mr-2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Mobile Capabilities</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Mobile access allows review of expenses and approvals.</li>
+                                <li>Invoice creation is typically done via desktop for detailed entry.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold text-[#003f5c] mb-4">Oracle Cloud AP Specialist Steps</h3>
+                    <div class="space-y-4">
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">1. Log In to Oracle Cloud:</strong> Access Oracle ERP via secure browser. Enter credentials to reach the Oracle Fusion Home Page.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">2. Navigate to the AP Work Area:</strong> From the homepage, select the Navigator icon (the hamburger menu). Go to: Payables > Invoices or Payables > Payments depending on task.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">3. Enter or Manage Invoices:</strong> Use Case: Creating an Invoice (link to be attached).
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">4. Match to Purchase Order (If PO-Based):</strong> Go to Match Invoice Lines tab. Search and select PO. System auto-populates quantity and amount.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">5. Validate and Approve:</strong> Click Actions > Validate. If necessary, click Actions > Initiate Approval. If under tolerance, auto-approval may occur.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">6. Monitor Payment Status:</strong> Navigate to Payments Dashboard. Review status (Ready, Paid, Failed). Use filters to track invoice lifecycle.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">7. Initiate Payment Process:</strong> Use Case: Ready to Pay. Go to: Payables > Payments > Create Payment. Select Payment Process Request. Define: Business Unit, Payment Date, Payment Method (Check, ACH, etc.). Submit request for payment.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">8. Reconcile and Close:</strong> Reconcile payments with bank data (optional). Mark completed invoices and payments. Period close tasks include: Unaccounted Transactions report, Invoice Register, Payment Register.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ap-supervisor-workflow" class="mb-12">
+            <h2 class="text-3xl font-bold section-header">Accounts Payable Supervisor Workflow</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="card persona-card">
+                        <div class="flex items-center justify-center mb-4">
+                            <img src="https://placehold.co/120x120/ef5675/ffffff?text=AP+Supervisor" alt="AP Supervisor Persona" class="rounded-full border-4 border-[#ef5675]">
+                        </div>
+                        <p class="text-gray-700 text-sm">As the Accounts Payable Supervisor, Sophia is responsible for managing the end-to-end invoice lifecycle in Oracle Cloud. She will oversee payment batch runs, exception handling, and vendor communication within a centralized digital system. Transitioning from largely paper-based and Concur workflows, Sophia will now lead a team that relies on real-time validations, workflow approvals, and system dashboards to maintain financial accuracy and vendor satisfaction.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h4 class="font-bold text-[#003f5c] mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell mr-2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications & Approvals</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Use the Bell Icon to review escalated items: Invoices pending approval, Payment holds, Urgent exception alerts.</li>
+                                <li>Delegate or escalate issues as needed.</li>
+                            </ul>
+                            <h4 class="font-bold text-[#003f5c] mt-4 mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smartphone mr-2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Mobile Capabilities</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Approve payments and view dashboards via mobile if enabled.</li>
+                                <li>Use desktop for detailed invoice reviews and batch processing.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold text-[#003f5c] mb-4">Oracle Cloud AP Supervisor Steps</h3>
+                    <div class="space-y-4">
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">1. Log In to Oracle Cloud:</strong> Access Oracle ERP via secure browser. Enter credentials to reach the Oracle Fusion Home Page.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">2. Navigate to the AP Work Area:</strong> From the homepage, select the Navigator icon (the hamburger menu). Go to: Payables > Invoices or Payables > Payments depending on task.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">3. Monitor Invoice Lifecycle:</strong> Use dashboards to track invoice progress and exceptions. Review flagged transactions requiring attention (e.g., holds, mismatches, approval delays).
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">4. Oversee Exception Handling:</strong> Use: Payables > Manage Holds. Resolve issues such as duplicate invoices, incorrect amounts, or missing POs. Reassign approvals or request revalidation.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">5. Manage Payment Batches:</strong> Go to: Payments > Create/Manage Payment Process Request. Create or review scheduled payment runs. Approve or cancel batches based on validation and payment calendar. Ensure payment methods (check/ACH) align with supplier setup.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">6. Analyze Payables Dashboard:</strong> Access Reports > Payables Dashboard. Monitor KPIs such as overdue invoices, payment status, or approval cycle time. Drill into details as needed for reconciliation or management review.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">7. Coordinate with Team and Vendors:</strong> Review staff workload and processing queues. Communicate with vendors for missing information or payment inquiries. Ensure vendor updates are submitted through proper workflow channel.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">8. Support Period Close:</strong> Ensure all invoices are accounted. Run Unaccounted Transactions, Invoice Aging, and Payment Register reports. Support Finance in GL reconciliation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ap-manager-workflow" class="mb-12">
+            <h2 class="text-3xl font-bold section-header">Accounts Payable Manager Workflow</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="card persona-card">
+                        <div class="flex items-center justify-center mb-4">
+                            <img src="https://placehold.co/120x120/ffa600/ffffff?text=AP+Manager" alt="AP Manager Persona" class="rounded-full border-4 border-[#ffa600]">
+                        </div>
+                        <p class="text-gray-700 text-sm">As the Accounts Payable Manager, Anita ensures timely and accurate vendor payments, oversees payment batches, manages exceptions, and enforces compliance with citywide payables policies. In Oracle Cloud, she will shift from paper-based approvals and batch tracking to automated workflows, real-time dashboards, and audit-ready digital trails. Her role is crucial in transitioning from manual invoice handling to streamlined AP operations. In addition, she manages reconciliation between AP and GL, period closing activities, and invoice approvals.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h4 class="font-bold text-[#003f5c] mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell mr-2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications & Approvals</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>She receives daily alerts via: Bell icon (Oracle Notifications), Email for urgent approvals or errors.</li>
+                                <li>She takes quick action on escalated issues or approval delays.</li>
+                            </ul>
+                            <h4 class="font-bold text-[#003f5c] mt-4 mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smartphone mr-2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Mobile Capabilities</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Anita can approve payments, monitor batch progress, and review dashboards from her mobile device.</li>
+                                <li>However, complex tasks like reconciliation and report downloads are completed on desktop.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold text-[#003f5c] mb-4">Oracle Cloud AP Manager Steps</h3>
+                    <div class="space-y-4">
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">1. Log in to Oracle Cloud:</strong> Anita accesses Oracle ERP using a secure login via browser. She lands on the Oracle Fusion Home Page where she can immediately access her dashboards and pending actions.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">2. Navigate to Payables Command Center:</strong> From the Navigator menu, Anita selects: Payables > Payments, Invoices, or Payables Dashboard. This central dashboard gives her real-time visibility into invoice and payment activity across the organization.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">3. Manage Invoice Approvals:</strong> Anita reviews all high value, urgent, or policy-sensitive Invoices flagged for approval: Checks supporting documentation and distribution lines. Ensures accurate coding, dates, and supplier data. Uses Actions > Approve or Return for Correction. Oracle automatically enforces routing rules, reducing manual routing and paper trails.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">4. Oversee Payment Batch Processing:</strong> Anita manages end-to-end payment runs through: Payables > Payments > Payment Process Requests. Reviews pending batches by date, business unit, and method (ACH, Check, etc.). Overrides or places holds if issues are identified. Submits batches and confirms approval status.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">5. Monitor Compliance & Exceptions:</strong> Oracle flags mismatches or holds related to: Missing PO match, Tax or withholding issues, Incomplete distributions, Budget overrun.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">6. Oversee Daily AP Operations:</strong> Anita checks Oracle worklists and dashboards to: Track real-time invoice progress. Review workload distribution across the AP team. Reassign stalled or overdue items as needed. Confirm vendor satisfaction through payment timing metrics.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">7. Reconcile AP to GL:</strong> Anita compares invoice, payment, and accrual postings between AP and GL using: Oracle's Account Analysis tools, Trial Balance and Subledger to GL. Reconciliation Report. She flags discrepancies and collaborates with Finance to adjust before close.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">8. Lead Period Close Activities:</strong> During close, Anita coordinates with GL and Project teams to ensure: All invoices are validated and accounted. No pending transactions remain. Subledger is reconciled with General Ledger (GL).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="expense-auditor-workflow" class="mb-12">
+            <h2 class="text-3xl font-bold section-header">Expense Auditor Workflow</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="card persona-card">
+                        <div class="flex items-center justify-center mb-4">
+                            <img src="https://placehold.co/120x120/003f5c/ffffff?text=Expense+Auditor" alt="Expense Auditor Persona" class="rounded-full border-4 border-[#003f5c]">
+                        </div>
+                        <p class="text-gray-700 text-sm">Alex is responsible for auditing employee-submitted expense reports in Oracle ERP to ensure compliance with city policies, proper documentation, and budget alignment. He acts as the final check before reimbursement, verifying receipts, expense types, policy violations, and budget codes. In Oracle Cloud, Alex transitions from manual tracking and email-based workflows to automated audit rules, system alerts, and real-time validations reducing errors and increasing processing speed.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h4 class="font-bold text-[#003f5c] mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell mr-2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications & Approvals</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Receives alerts for new reports requiring audit.</li>
+                                <li>Notifications for escalated or reassigned reports.</li>
+                                <li>System flags policy violations and duplicates.</li>
+                            </ul>
+                            <h4 class="font-bold text-[#003f5c] mt-4 mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smartphone mr-2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Mobile Capabilities</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Can review and approve/reject reports from mobile.</li>
+                                <li>Mobile view supports receipt image preview, comments, and approvals.</li>
+                                <li>Desktop is preferred for batch reviews and exporting reports.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold text-[#003f5c] mb-4">Oracle Cloud Expense Auditor Steps</h3>
+                    <div class="space-y-4">
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">1. Log in to Oracle Cloud:</strong> Alex logs in with secure credentials to reach the Oracle Fusion homepage. Access is granted to the Expenses module and audit dashboards.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">2. Navigate to the Expenses Audit Dashboard:</strong> From the Navigator, he goes to: Expenses > Expense Auditing. Here, Alex sees all reports flagged for review, categorized by status or urgency.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">3. Review Expense Reports for Compliance:</strong> He reviews reports automatically flagged by Oracle for: Over policy limits (e.g., per diem, mileage), Missing or duplicate receipts, Policy violations (e.g., unapproved vendors). Each report includes receipts, audit trail, and user comments.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">4. Validate Documentation & Receipts:</strong> For each flagged report: Confirms receipts match reported amounts. Checks dates, vendors, and categories against policy. Verifies business justification notes (if required).
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">5. Flag Issues or Return Reports:</strong> If discrepancies are found: Selects "Send Back to Employee". Adds comments for correction. If compliant, selects "Audit Complete" to forward for payment.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">6. Coordinate with Finance if Needed:</strong> If unclear or high-value reports need extra review: Escalates to Expense Manager or Finance. Collaborates via system notes or internal messages.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">7. Monitor Audit Queue & Metrics:</strong> Uses dashboard filters to: Prioritize urgent or overdue reports. Track volume of audited vs. unaudited. Report exceptions or policy trends to leadership.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">8. End-of-Period Audit Reporting:</strong> Before period close: Ensures all pending reports are processed. Runs audit logs and exception summaries. Shares insights with Expense Manager or Compliance team.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="expense-auditor-manager-workflow" class="mb-12">
+            <h2 class="text-3xl font-bold section-header">Expense Auditor Manager Workflow</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="card persona-card">
+                        <div class="flex items-center justify-center mb-4">
+                            <img src="https://placehold.co/120x120/7a5195/ffffff?text=EA+Manager" alt="Expense Auditor Manager Persona" class="rounded-full border-4 border-[#7a5195]">
+                        </div>
+                        <p class="text-gray-700 text-sm">Sara leads the expense audit function for the City, ensuring all submitted employee expenses are properly reviewed, validated, and approved according to policy. She oversees a team of auditors and ensures timely reimbursements, fraud prevention, and compliance with financial regulations using Oracle Cloud.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h4 class="font-bold text-[#003f5c] mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell mr-2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications & Approvals</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Email and in-system alerts for escalations.</li>
+                                <li>Notifications when new expense audit policies are updated.</li>
+                                <li>Reminders for overdue expense reports.</li>
+                            </ul>
+                            <h4 class="font-bold text-[#003f5c] mt-4 mb-2 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smartphone mr-2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Mobile Capabilities</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                <li>Approve or reject expense reports on the go via: Oracle Expenses Mobile App, Email-based action buttons.</li>
+                                <li>Quick access to dashboards and audit logs via mobile browser.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold text-[#003f5c] mb-4">Oracle Cloud Expense Auditor Manager Steps</h3>
+                    <div class="space-y-4">
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">1. Log in to Oracle Fusion Cloud:</strong> Sara Logs into Oracle Cloud ERP with assigned credentials. Select the Expenses tile on the Oracle homepage.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">2. Navigate to the Audit Work Area:</strong> Action: Open the Audit Expense Reports dashboard under the Expenses module. View: Summary of all pending expense reports, flagged exceptions, and audit status. Mobile Tip: Use Oracle’s Mobile Expenses app to view high-level audit queues.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">3. Open and Review Expectations:</strong> She Clicks on flagged expense reports. System Highlights: Sara sees: Policy violations (e.g., over per diem limits), Duplicate detection alerts, Missing receipts.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">4. Take Audit Actions:</strong> Approve if the report is valid. Send back to employee with comments. Escalate to AP Manager if violations are severe. Pro Tip: Sara can batch approve/reject multiple reports.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">5. Track Auditor Performance:</strong> Action: Navigate to Reports > Expense Audit Metrics. Data Available: Number of reports audited, Policy violation frequency, Turnaround time for approvals.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">6. Manage Expense Auditor Team Workflow:</strong> Action: Use Expense Auditor Management dashboard Tasks. Reassign audit reports. Monitor workload balance. Review exception trends.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">7. Approve High-Risk Expenses:</strong> Sara review escalated reports from auditors. System Insight: Additional documentation may be required. Decision: Final approval or escalation to Finance.
+                        </div>
+                        <div class="workflow-step oracle-step">
+                            <strong class="text-[#7a5195]">8. Final Reconciliation & Audit Log:</strong> Action: Confirm all pending reports are processed. Output: Run audit trail logs and compliance summaries. Timing: Done weekly or monthly depending on volume.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-6 bg-gray-800 text-gray-400 rounded-lg mt-8">
+        <p>&copy; 2025 City of Birmingham. All rights reserved.</p>
+        <p class="text-sm mt-1">"Grow with the Flow" - Optimizing ERP processes for efficiency.</p>
+    </footer>
+
+</body>
+</html>
