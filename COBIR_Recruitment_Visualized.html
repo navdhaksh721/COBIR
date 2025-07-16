@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City of Birmingham | Recruitment Process Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!--
+    Narrative & Structure Plan:
+    1. Header: Introduce the infographic's purpose.
+    2. High-Level Stats: Use big numbers and donut charts to compare the two main recruitment paths (Classified vs. Unclassified).
+    3. Detailed Flowcharts: Use structured HTML/CSS with Tailwind to build swimlane diagrams for each process, clearly showing steps within Oracle, Workday, and Manual systems.
+    4. Key Integrations: Highlight the critical data handoffs between systems using styled cards.
+    5. Conclusion: Briefly summarize the future direction of the recruitment process.
+
+    Visualization Selection & Justification (NO SVG, NO MERMAID JS):
+    - Big Numbers: Goal: Inform. Method: Large, styled text to convey key stats immediately.
+    - Donut Charts: Goal: Compare. Library: Chart.js/Canvas. Justification: Ideal for showing the proportional breakdown of process steps by system (Oracle vs. Workday vs. Manual), providing a quick-glance comparison of process complexity.
+    - Flow Charts: Goal: Organize. Method: Structured HTML (divs with flexbox/grid) and Tailwind CSS. Justification: This method allows for a fully responsive, accessible, and stylistically consistent representation of the complex, multi-lane process without relying on static images, SVG, or Mermaid JS, thereby adhering to all constraints.
+    - Styled Lists/Cards: Goal: Organize/Inform. Method: HTML and Tailwind CSS. Justification: Used to detail the key system integrations in a clear, readable format.
+
+    Color Palette Selection:
+    - Palette Name: Brilliant Blues & Energetic Accents
+    - HEX Codes: #003f5c (Navy), #7a5195 (Purple), #ef5675 (Pink), #ffa600 (Orange), #f0f4f8 (Light Gray Background), #ffffff (White)
+
+    Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in this output.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .flow-line {
+            position: absolute;
+            background-color: #cbd5e1;
+            z-index: 0;
+        }
+        .flow-card {
+            border-left-width: 4px;
+            z-index: 1;
+            transition: all 0.3s ease-in-out;
+        }
+        .flow-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .oracle-card { border-color: #7a5195; }
+        .workday-card { border-color: #ef5675; }
+        .manual-card { border-color: #ffa600; }
+        .integration-card {
+            background: linear-gradient(135deg, #7a5195, #ef5675);
+            color: white;
+        }
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 10px solid #94a3b8;
+            margin: 12px auto 0 auto;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-[#003f5c] text-white p-8 text-center shadow-lg">
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight">Navigating the Recruitment Maze</h1>
+        <p class="mt-4 text-lg max-w-3xl mx-auto text-gray-300">A visual guide to the City of Birmingham's hiring process for Classified & Unclassified roles, detailing the journey from requisition to hire.</p>
+    </header>
+
+    <main class="p-4 md:p-8">
+
+        <section id="overview" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-8 text-[#003f5c]">Two Paths, One Goal: A Tale of Two Processes</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-[#7a5195]">Classified Employees</h3>
+                        <p class="text-gray-600 mt-2 mb-4">A structured, multi-system process involving significant Personnel Board oversight for roles like Fire and Police.</p>
+                        <div class="chart-container">
+                            <canvas id="classifiedChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-5xl font-extrabold text-[#003f5c]">33</p>
+                        <p class="text-lg text-gray-500">Total Process Steps</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6 text-center flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-[#ef5675]">Unclassified Employees</h3>
+                        <p class="text-gray-600 mt-2 mb-4">A more direct process primarily managed within Oracle HCM for roles like Library and Event Staff.</p>
+                        <div class="chart-container">
+                            <canvas id="unclassifiedChart"></canvas>
+                        </div>
+                    </div>
+                     <div class="mt-4">
+                        <p class="text-5xl font-extrabold text-[#003f5c]">15</p>
+                        <p class="text-lg text-gray-500">Total Process Steps</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="classified-flow" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#003f5c]">The Classified Employee Journey</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">This process involves a deep integration between the City's HR systems and the Personnel Board's platform, ensuring a rigorous, merit-based hiring protocol.</p>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <h4 class="text-xl font-bold text-[#7a5195]">Oracle HCM Cloud</h4>
+                        <div class="w-16 h-1 bg-[#7a5195] mx-auto mt-2 rounded-full"></div>
+                    </div>
+                    <div class="text-center">
+                         <h4 class="text-xl font-bold text-[#ef5675]">Workday (Personnel Board)</h4>
+                         <div class="w-16 h-1 bg-[#ef5675] mx-auto mt-2 rounded-full"></div>
+                    </div>
+                    <div class="text-center">
+                         <h4 class="text-xl font-bold text-[#ffa600]">Manual / External</h4>
+                         <div class="w-16 h-1 bg-[#ffa600] mx-auto mt-2 rounded-full"></div>
+                    </div>
+                </div>
+
+                <div class="mt-8 space-y-4">
+                    <div class="flow-card oracle-card bg-purple-50 p-4 rounded-lg shadow-sm"><strong>Requisition & Approval:</strong> The process begins in Oracle with a new position request, followed by a multi-level approval chain involving the Department Director, Budget Team, and Mayor's Office.</div>
+                    <div class="arrow-down"></div>
+                    <div class="flow-card manual-card bg-amber-50 p-4 rounded-lg shadow-sm"><strong>Manual Handoff:</strong> The Payroll Coordinator manually completes a certification form and emails the recruiting team, initiating the cross-system workflow.</div>
+                     <div class="arrow-down"></div>
+                    <div class="flow-card integration-card p-4 rounded-lg shadow-sm text-center"><strong>🚀 OUTBOUND:</strong> Requisition details are sent from Oracle to Workday.</div>
+                    <div class="arrow-down"></div>
+                    <div class="flow-card workday-card bg-pink-50 p-4 rounded-lg shadow-sm"><strong>Personnel Board Screening:</strong> The Personnel Board (PBJC) takes over in Workday, creating a "Cert List" of screened candidates from the register. If no register exists, the job is posted for 7 days.</div>
+                    <div class="arrow-down"></div>
+                    <div class="flow-card workday-card bg-pink-50 p-4 rounded-lg shadow-sm"><strong>Candidate Communication & Appeals:</strong> PBJC notifies candidates of their status. A 3-day appeal period is managed before the final Cert List is created and sent to the City's recruiting team.</div>
+                     <div class="arrow-down"></div>
+                    <div class="flow-card integration-card p-4 rounded-lg shadow-sm text-center"><strong>📥 INBOUND:</strong> Certified candidate applications are sent from Workday back to Oracle.</div>
+                     <div class="arrow-down"></div>
+                    <div class="flow-card oracle-card bg-purple-50 p-4 rounded-lg shadow-sm"><strong>City-Side Review & Interview:</strong> Inside Oracle, the City's recruiting team screens the certified applications and moves them to department review. Interviews are then scheduled and conducted.</div>
+                    <div class="arrow-down"></div>
+                    <div class="flow-card manual-card bg-amber-50 p-4 rounded-lg shadow-sm"><strong>Interview Packet:</strong> The interview panel's feedback and candidate rankings are compiled into a packet and manually sent back to the City's recruiters.</div>
+                    <div class="arrow-down"></div>
+                    <div class="flow-card oracle-card bg-purple-50 p-4 rounded-lg shadow-sm"><strong>Offer & Pre-employment:</strong> Recruiters create and extend an offer in Oracle. Upon acceptance, pre-employment screenings (drug test, physical) are scheduled.</div>
+                    <div class="arrow-down"></div>
+                    <div class="flow-card oracle-card bg-purple-50 p-4 rounded-lg shadow-sm"><strong>Onboarding & Hire:</strong> The candidate is moved to HR as a Pending Worker, triggering an onboarding journey. On the hire date, they are automatically converted to an employee.</div>
+                     <div class="arrow-down"></div>
+                    <div class="flow-card integration-card p-4 rounded-lg shadow-sm text-center"><strong>🚀 OUTBOUND:</strong> Final new hire data is sent from Oracle to Workday to close the loop.</div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="unclassified-flow" class="mb-12">
+             <h2 class="text-3xl font-bold text-center mb-2 text-[#003f5c]">The Unclassified Employee Journey</h2>
+             <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">This streamlined workflow is largely contained within Oracle HCM, providing greater speed and flexibility for hiring unclassified roles.</p>
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-4xl mx-auto">
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="text-center">
+                        <h4 class="text-xl font-bold text-[#7a5195]">Oracle HCM Cloud</h4>
+                        <div class="w-16 h-1 bg-[#7a5195] mx-auto mt-2 rounded-full"></div>
+                    </div>
+                    <div class="text-center">
+                         <h4 class="text-xl font-bold text-[#ffa600]">Manual / External</h4>
+                         <div class="w-16 h-1 bg-[#ffa600] mx-auto mt-2 rounded-full"></div>
+                    </div>
+                 </div>
+
+                 <div class="mt-8 space-y-4">
+                     <div class="flow-card oracle-card bg-purple-50 p-4 rounded-lg shadow-sm"><strong>Requisition & Posting:</strong> The recruiter creates, formats, and gets approval for the requisition directly in Oracle. The job is then posted to the career site.</div>
+                     <div class="arrow-down"></div>
+                     <div class="flow-card manual-card bg-amber-50 p-4 rounded-lg shadow-sm"><strong>External Posting & Testing:</strong> The job may be posted to LinkedIn. For some roles, candidates fill out a waiver and take an external Agility Test using the Truecontext app.</div>
+                     <div class="arrow-down"></div>
+                     <div class="flow-card oracle-card bg-purple-50 p-4 rounded-lg shadow-sm"><strong>Screening & Interview:</strong> Candidates apply in Oracle. The recruiter screens applications and conducts interviews, gathering feedback within the system.</div>
+                     <div class="arrow-down"></div>
+                     <div class="flow-card oracle-card bg-purple-50 p-4 rounded-lg shadow-sm"><strong>Offer & Hire:</strong> The recruiter creates and extends the offer. Upon acceptance, the candidate is moved to HR as a pending worker, and the automated onboarding journey begins.</div>
+                 </div>
+            </div>
+        </section>
+
+
+    </main>
+    <footer class="text-center p-6 bg-gray-800 text-gray-400">
+        <p>This infographic represents the current state recruitment process for the City of Birmingham.</p>
+        <p class="text-sm mt-1">Future state aims to further streamline these workflows within Oracle HCM Cloud.</p>
+    </footer>
+
+    <script>
+        function wrapLabel(str, max) {
+            if (str.length <= max) {
+                return str;
+            }
+            const words = str.split(' ');
+            let lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length > max) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine = (currentLine + ' ' + word).trim();
+                }
+            });
+            if (currentLine) {
+                lines.push(currentLine.trim());
+            }
+            return lines;
+        }
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            return Array.isArray(label) ? label.join(' ') : label;
+        };
+
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            size: 14,
+                            family: 'Inter'
+                        },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    },
+                    backgroundColor: '#003f5c',
+                    titleFont: { size: 16, weight: 'bold' },
+                    bodyFont: { size: 14 },
+                    padding: 12,
+                    cornerRadius: 8
+                }
+            }
+        };
+
+        const classifiedData = {
+            labels: ['Oracle HCM Cloud', 'Workday (Personnel Board)', 'Manual / External'],
+            datasets: [{
+                label: 'Classified Process Steps',
+                data: [17, 7, 9],
+                backgroundColor: ['#7a5195', '#ef5675', '#ffa600'],
+                borderColor: '#ffffff',
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        };
+
+        new Chart(document.getElementById('classifiedChart'), {
+            type: 'doughnut',
+            data: classifiedData,
+            options: chartOptions
+        });
+
+        const unclassifiedData = {
+            labels: ['Oracle HCM Cloud', 'Manual / External'],
+            datasets: [{
+                label: 'Unclassified Process Steps',
+                data: [11, 4],
+                backgroundColor: ['#7a5195', '#ffa600'],
+                borderColor: '#ffffff',
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        };
+
+        new Chart(document.getElementById('unclassifiedChart'), {
+            type: 'doughnut',
+            data: unclassifiedData,
+            options: chartOptions
+        });
+    </script>
+</body>
+</html>
