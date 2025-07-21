@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle ERP Persona Workflow Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            max-height: 400px;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+        }
+        .role-card {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .role-card.selected {
+            border: 2px solid #003f5c;
+            background-color: #e0f2f7;
+        }
+        .workflow-step {
+            position: relative;
+            padding-left: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .workflow-step::before {
+            content: attr(data-step-number);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2rem;
+            height: 2rem;
+            background-color: #003f5c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        .workflow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 2rem;
+            bottom: -1.5rem; /* Adjust to connect to next step */
+            width: 2px;
+            background-color: #7a5195;
+            z-index: 0;
+        }
+        .workflow-sub-step {
+            list-style: disc;
+            margin-left: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+        .system-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .system-oracle {
+            background-color: #e0f2f7;
+            color: #2e86de;
+        }
+        .system-tyler {
+            background-color: #ffe0b2;
+            color: #ff9800;
+        }
+        .access-table th, .access-table td {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .access-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .access-table .access-check { color: #003f5c; font-weight: bold; }
+        .access-table .access-cross { color: #ef5675; font-weight: bold; }
+        .access-table .access-limited { color: #ffa600; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-[#f0f4f8] text-gray-800 p-4 md:p-8">
+
+    <header class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-black text-[#003f5c]">Oracle ERP Persona Workflows</h1>
+        <p class="text-lg text-gray-600 mt-2">Explore the Day-in-the-Life of Key Security Roles in COBIR</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto">
+        <section class="card">
+            <h2 class="text-2xl font-bold text-[#003f5c] mb-4">Understanding ERP Security Roles</h2>
+            <p class="text-gray-700 mb-6">
+                This infographic provides a detailed look into the daily workflows and system interactions for various security roles within Oracle Fusion ERP. By understanding these persona mappings, we aim to streamline processes, enhance user adoption, and ensure efficient operations across different modules like Accounts Payable, Accounts Receivable, General Ledger, Fixed Assets, Cash Management, Budget, Grant Management, Procurement, and Supply Chain Management.
+            </p>
+
+            <h3 class="text-xl font-bold text-[#003f5c] mb-4">Roles by ERP Module</h3>
+            <p class="text-sm text-gray-600 mb-4">This chart illustrates the distribution of defined security roles across the primary Oracle ERP modules, indicating areas of focus and complexity.</p>
+            <div class="chart-container">
+                <canvas id="rolesByModuleChart"></canvas>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="text-2xl font-bold text-[#003f5c] mb-4">Select a Security Role</h2>
+            <p class="text-gray-700 mb-6">Click on any role below to view its detailed workflow, system interactions, and responsibilities.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="role-selection-grid">
+                <!-- Role cards will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <section id="role-details-section" class="card hidden">
+            <h2 class="text-2xl font-bold text-[#003f5c] mb-4" id="selected-role-name"></h2>
+            <p class="text-gray-700 mb-6" id="selected-role-description"></p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-[#f4f9ff] rounded-lg p-4 border-l-4 border-[#7a5195]">
+                    <h3 class="text-lg font-bold text-[#003f5c] mb-2">Notifications & Approvals</h3>
+                    <p class="text-gray-700 text-sm" id="role-notifications"></p>
+                </div>
+                <div class="bg-[#f4f9ff] rounded-lg p-4 border-l-4 border-[#7a5195]">
+                    <h3 class="text-lg font-bold text-[#003f5c] mb-2">Mobile Capabilities</h3>
+                    <p class="text-gray-700 text-sm" id="role-mobile-capabilities"></p>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-[#003f5c] mb-4">Workflow Steps</h3>
+            <p class="text-sm text-gray-600 mb-4">Follow the key steps and system interactions for this role's daily activities.</p>
+            <div id="workflow-steps-container" class="flex flex-col items-start">
+                <!-- Workflow steps will be dynamically loaded here -->
+            </div>
+
+            <div id="access-matrix-container" class="mt-8 hidden">
+                <h3 class="text-xl font-bold text-[#003f5c] mb-4">Security Role Access Matrix</h3>
+                <p class="text-sm text-gray-600 mb-4">This table outlines the specific activities and system access levels for key roles within this module. (✔ = Full Access, ✖ = No Access, Limited = Limited Access)</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 access-table">
+                        <thead id="access-matrix-header"></thead>
+                        <tbody id="access-matrix-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const rolesData = [
+            {
+                id: 'ap-specialist',
+                name: 'Accounts Payable Specialist',
+                module: 'Accounts Payable',
+                description: 'Manages invoice processing and payments, including entering, matching, validating, and initiating payment runs. Handles daily tasks and supports monthly close activities.',
+                notifications: 'Uses the Bell Icon for alerts (e.g., invoice approvals, errors). May also get approval reminders via email upon go-live.',
+                mobileCapabilities: 'Mobile access allows review of expenses and approvals. Invoice creation is typically done via desktop for detailed entry.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Access Oracle ERP via secure browser.', 'Enter credentials to reach the Oracle Fusion Home Page.'], system: 'Oracle' },
+                    { step: 'Navigate to the AP Work Area', details: ['From the homepage, select the Navigator icon (the hamburger menu).', 'Go to: Payables > Invoices or Payables > Payments depending on task.'], system: 'Oracle' },
+                    { step: 'Enter or Manage Invoices', details: ['Use Case: Creating an Invoice (link to be attached)'], system: 'Oracle' },
+                    { step: 'Match to Purchase Order (If PO-Based)', details: ['Go to Match Invoice Lines tab.', 'Search and select PO.', 'System auto-populates quantity and amount.'], system: 'Oracle' },
+                    { step: 'Validate and Approve', details: ['Click Actions > Validate.', 'If necessary, click Actions > Initiate Approval.', 'If under tolerance, auto-approval may occur.'], system: 'Oracle' },
+                    { step: 'Monitor Payment Status', details: ['Navigate to Payments Dashboard.', 'Review status: (Ready, Paid, Failed).', 'Use filters to track invoice lifecycle.'], system: 'Oracle' },
+                    { step: 'Initiate Payment Process', details: ['Use Case: Ready to Pay', 'Go to: Payables > Payments > Create Payment.', 'Select Payment Process Request.', 'Define: Business Unit, Payment Date, Payment Method (Check, ACH, etc.).', 'Submit request for payment.'], system: 'Oracle' },
+                    { step: 'Reconcile and Close', details: ['Reconcile payments with bank data (optional).', 'Mark completed invoices and payments.', 'Period close tasks include: Unaccounted Transactions report, Invoice Register, Payment Register.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Specialist', 'Supervisor', 'Manager', 'Expense Auditor', 'Mgt'],
+                    rows: [
+                        ['Enter and match invoices', '', '', '', '✔', ''],
+                        ['Submit invoices for validation', '', '', '', '✔', ''],
+                        ['Review and correct invoice errors', '✔', '', '', '', ''],
+                        ['Approve payments', '✔', 'Limited', '', '', ''],
+                        ['Configure payment terms / batches', '✔', '✔', '', '✔', ''],
+                        ['Monitor workflow queues', '✔', '', '', '', ''],
+                        ['Run KPI / Audit reports', '✔', '✔', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'ap-supervisor',
+                name: 'Accounts Payable Supervisor',
+                module: 'Accounts Payable',
+                description: 'As the Accounts Payable Supervisor, Sophia is responsible for managing the end-to-end invoice lifecycle in Oracle Cloud. She will oversee payment batch runs, exception handling, and vendor communication within a centralized digital system. Transitioning from largely paper-based and Concur workflows, Sophia will now lead a team that relies on real-time validations, workflow approvals, and system dashboards to maintain financial accuracy and vendor satisfaction.',
+                notifications: 'Uses the Bell Icon to review escalated items: Invoices pending approval, Payment holds, Urgent exception alerts. Delegate or escalate issues as needed.',
+                mobileCapabilities: 'Approve payments and view dashboards via mobile if enabled. Use desktop for detailed invoice reviews and batch processing.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Access Oracle ERP via secure browser.', 'Enter credentials to reach the Oracle Fusion Home Page.'], system: 'Oracle' },
+                    { step: 'Navigate to the AP Work Area', details: ['From the homepage, select the Navigator icon (the hamburger menu).', 'Go to: Payables > Invoices or Payables > Payments depending on task.'], system: 'Oracle' },
+                    { step: 'Monitor Invoice Lifecycle', details: ['Use dashboards to track invoice progress and exceptions.', 'Review flagged transactions requiring attention (e.g., holds, mismatches, approval delays).'], system: 'Oracle' },
+                    { step: 'Oversee Exception Handling', details: ['Use: Payables > Manage Holds.', 'Resolve issues such as duplicate invoices, incorrect amounts, or missing POs.', 'Reassign approvals or request revalidation.'], system: 'Oracle' },
+                    { step: 'Manage Payment Batches', details: ['Go to: Payments > Create/Manage Payment Process Request.', 'Create or review scheduled payment runs.', 'Approve or cancel batches based on validation and payment calendar.', 'Ensure payment methods (check/ACH) align with supplier setup.'], system: 'Oracle' },
+                    { step: 'Analyze Payables Dashboard', details: ['Access Reports > Payables Dashboard.', 'Monitor KPIs such as overdue invoices, payment status, or approval cycle time.', 'Drill into details as needed for reconciliation or management review.'], system: 'Oracle' },
+                    { step: 'Coordinate with Team and Vendors', details: ['Review staff workload and processing queues.', 'Communicate with vendors for missing information or payment inquiries.', 'Ensure vendor updates are submitted through proper workflow channel.'], system: 'Oracle' },
+                    { step: 'Support Period Close', details: ['Ensure all invoices are accounted.', 'Run Unaccounted Transactions, Invoice Aging, and Payment Register reports.', 'Support Finance in GL reconciliation.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Specialist', 'Supervisor', 'Manager', 'Expense Auditor', 'Mgt'],
+                    rows: [
+                        ['Enter and match invoices', '', '', '', '✔', ''],
+                        ['Submit invoices for validation', '', '', '', '✔', ''],
+                        ['Review and correct invoice errors', '✔', '', '', '', ''],
+                        ['Approve payments', '✔', 'Limited', '', '', ''],
+                        ['Configure payment terms / batches', '✔', '✔', '', '✔', ''],
+                        ['Monitor workflow queues', '✔', '', '', '', ''],
+                        ['Run KPI / Audit reports', '✔', '✔', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'ap-manager',
+                name: 'Accounts Payable Manager',
+                module: 'Accounts Payable',
+                description: 'As the Accounts Payable Manager, Anita ensures timely and accurate vendor payments, oversees payment batches, manages exceptions, and enforces compliance with citywide payables policies. In Oracle Cloud, she will shift from paper-based approvals and batch tracking to automated workflows, real-time dashboards, and audit-ready digital trails. Her role is crucial in transitioning from manual invoice handling to streamlined AP operations. In addition, she manages reconciliation between AP and GL, period closing activities, and invoice approvals.',
+                notifications: 'She receives daily alerts via: Bell icon (Oracle Notifications), Email for urgent approvals or errors. She takes quick action on escalated issues or approval delays.',
+                mobileCapabilities: 'Anita can approve payments, monitor batch progress, and review dashboards from her mobile device. However, complex tasks like reconciliation and report downloads are completed on desktop.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Anita accesses Oracle ERP using a secure login via browser.', 'She lands on the Oracle Fusion Home Page where she can immediately access her dashboards and pending actions.'], system: 'Oracle' },
+                    { step: 'Navigate to Payables Command Center', details: ['From the Navigator menu, Anita selects: Payables > Payments, Invoices, or Payables Dashboard.', 'This central dashboard gives her real-time visibility into invoice and payment activity across the organization.'], system: 'Oracle' },
+                    { step: 'Manage Invoice Approvals', details: ['Anita reviews all high-value, urgent, or policy-sensitive invoices flagged for approval:', 'Checks supporting documentation and distribution lines.', 'Ensures accurate coding, dates, and supplier data.', 'Uses Actions > Approve or Return for Correction.', 'Oracle automatically enforces routing rules, reducing manual routing and paper trails.'], system: 'Oracle' },
+                    { step: 'Oversee Payment Batch Processing', details: ['Anita manages end-to-end payment runs through: Payables > Payments > Payment Process Requests.', 'Reviews pending batches by date, business unit, and method (ACH, Check, etc.).', 'Overrides or places holds if issues are identified.', 'Submits batches and confirms approval status.'], system: 'Oracle' },
+                    { step: 'Monitor Compliance & Exceptions', details: ['Oracle flags mismatches or holds related to:', 'Missing PO match', 'Tax or withholding issues', 'Incomplete distributions', 'Budget overrun.'], system: 'Oracle' },
+                    { step: 'Oversee Daily AP Operations', details: ['Anita checks Oracle worklists and dashboards to:', 'Track real-time invoice progress.', 'Review workload distribution across the AP team.', 'Reassign stalled or overdue items as needed.', 'Confirm vendor satisfaction through payment timing metrics.'], system: 'Oracle' },
+                    { step: 'Reconcile AP to GL', details: ['Anita compares invoice, payment, and accrual postings between AP and GL using:', 'Oracle\'s Account Analysis tools', 'Trial Balance and Subledger to GL Reconciliation Report.', 'She flags discrepancies and collaborates with Finance to adjust before close.'], system: 'Oracle' },
+                    { step: 'Lead Period Close Activities', details: ['During close, Anita coordinates with GL and Project teams to ensure:', 'All invoices are validated and accounted.', 'No pending transactions remain.', 'Subledger is reconciled with General Ledger (GL).'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Specialist', 'Supervisor', 'Manager', 'Expense Auditor', 'Mgt'],
+                    rows: [
+                        ['Enter and match invoices', '', '', '', '✔', ''],
+                        ['Submit invoices for validation', '', '', '', '✔', ''],
+                        ['Review and correct invoice errors', '✔', '', '', '', ''],
+                        ['Approve payments', '✔', 'Limited', '', '', ''],
+                        ['Configure payment terms / batches', '✔', '✔', '', '✔', ''],
+                        ['Monitor workflow queues', '✔', '', '', '', ''],
+                        ['Run KPI / Audit reports', '✔', '✔', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'expense-auditor',
+                name: 'Expense Auditor',
+                module: 'Accounts Payable',
+                description: 'Alex is responsible for auditing employee-submitted expense reports in Oracle ERP to ensure compliance with city policies, proper documentation, and budget alignment. He acts as the final check before reimbursement, verifying receipts, expense types, policy violations, and budget codes. In Oracle Cloud, Alex transitions from manual tracking and email-based workflows to automated audit rules, system alerts, and real-time validations reducing errors and increasing processing speed.',
+                notifications: 'Receives alerts for new reports requiring audit. Notifications for escalated or reassigned reports. System flags policy violations and duplicates.',
+                mobileCapabilities: 'Can review and approve/reject reports from mobile. Mobile view supports receipt image preview, comments, and approvals. Desktop is preferred for batch reviews and exporting reports.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Alex logs in with secure credentials to reach the Oracle Fusion homepage.', 'Access is granted to the Expenses module and audit dashboards.'], system: 'Oracle' },
+                    { step: 'Navigate to the Expenses Audit Dashboard', details: ['From the Navigator, he goes to: Expenses > Expense Auditing.', 'Here, Alex sees all reports flagged for review, categorized by status or urgency.'], system: 'Oracle' },
+                    { step: 'Review Expense Reports for Compliance', details: ['He reviews reports automatically flagged by Oracle for:', 'Over policy limits (e.g., per diem, mileage)', 'Missing or duplicate receipts', 'Policy violations (e.g., unapproved vendors)', 'Each report includes receipts, audit trail, and user comments.'], system: 'Oracle' },
+                    { step: 'Validate Documentation & Receipts', details: ['For each flagged report:', 'Confirms receipts match reported amounts.', 'Checks dates, vendors, and categories against policy.', 'Verifies business justification notes (if required).'], system: 'Oracle' },
+                    { step: 'Flag Issues or Return Reports', details: ['If discrepancies are found:', 'Selects "Send Back to Employee".', 'Adds comments for correction.', 'If compliant, selects "Audit Complete" to forward for payment.'], system: 'Oracle' },
+                    { step: 'Coordinate with Finance if Needed', details: ['If unclear or high-value reports need extra review:', 'Escalates to Expense Manager or Finance.', 'Collaborates via system notes or internal messages.'], system: 'Oracle' },
+                    { step: 'Monitor Audit Queue & Metrics', details: ['Uses dashboard filters to:', 'Prioritize urgent or overdue reports.', 'Track volume of audited vs. unaudited.', 'Report exceptions or policy trends to leadership.'], system: 'Oracle' },
+                    { step: 'End-of-Period Audit Reporting', details: ['Before period close:', 'Ensures all pending reports are processed.', 'Runs audit logs and exception summaries.', 'Shares Insights with Expense Manager or Compliance team.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Specialist', 'Supervisor', 'Manager', 'Expense Auditor', 'Mgt'],
+                    rows: [
+                        ['Enter and match invoices', '', '', '', '✔', ''],
+                        ['Submit invoices for validation', '', '', '', '✔', ''],
+                        ['Review and correct invoice errors', '✔', '', '', '', ''],
+                        ['Approve payments', '✔', 'Limited', '', '', ''],
+                        ['Configure payment terms / batches', '✔', '✔', '', '✔', ''],
+                        ['Monitor workflow queues', '✔', '', '', '', ''],
+                        ['Run KPI / Audit reports', '✔', '✔', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'expense-auditor-mgt',
+                name: 'Expense Auditor Manager',
+                module: 'Accounts Payable',
+                description: 'Sara leads the expense audit function for the City, ensuring all submitted employee expenses are properly reviewed, validated, and approved according to policy. She oversees a team of auditors and ensures timely reimbursements, fraud prevention, and compliance with financial regulations using Oracle Cloud.',
+                notifications: 'Email and in-system alerts for escalations. Notifications when new expense audit policies are updated. Reminders for overdue expense reports.',
+                mobileCapabilities: 'Approve or reject expense reports on the go via: Oracle Expenses Mobile App, Email-based action buttons, Quick access to dashboards and audit logs via mobile browser.',
+                workflow: [
+                    { step: 'Log in to Oracle Fusion Cloud', details: ['Sara Logs into Oracle Cloud ERP with assigned credentials.', 'Select the Expenses tile on the Oracle homepage.'], system: 'Oracle' },
+                    { step: 'Navigate to the Audit Work Area', details: ['Action: Open the Audit Expense Reports dashboard under the Expenses module.', 'View: Summary of all pending expense reports, flagged exceptions, and audit status.', 'Mobile Tip: Use Oracle’s Mobile Expenses app to view high-level audit queues.'], system: 'Oracle' },
+                    { step: 'Open and Review Expectations', details: ['She Clicks on flagged expense reports.', 'System Highlights: Sara sees: Policy violations (e.g., over per diem limits), Duplicate detection alerts, Missing receipts.'], system: 'Oracle' },
+                    { step: 'Take Audit Actions', details: ['Approve if the report is valid.', 'Send back to employee with comments.', 'Escalate to AP Manager if violations are severe.', 'Pro Tip: Sara can batch approve/reject multiple reports.'], system: 'Oracle' },
+                    { step: 'Track Auditor Performance', details: ['Action: Navigate to Reports > Expense Audit Metrics.', 'Data Available: Number of reports audited, Policy violation frequency, Turnaround time for approvals.'], system: 'Oracle' },
+                    { step: 'Manage Expense Auditor Team Workflow', details: ['Action: Use Expense Auditor Management dashboard Tasks.', 'Reassign audit reports', 'Monitor workload balance', 'Review exception trends.'], system: 'Oracle' },
+                    { step: 'Approve High-Risk Expenses', details: ['Sara review escalated reports from auditors.', 'System Insight: Additional documentation may be required.', 'Decision: Final approval or escalation to Finance.'], system: 'Oracle' },
+                    { step: 'Final Reconciliation & Audit Log', details: ['Action: Confirm all pending reports are processed.', 'Output: Run audit trail logs and compliance summaries.', 'Timing: Done weekly or monthly depending on volume.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Specialist', 'Supervisor', 'Manager', 'Expense Auditor', 'Mgt'],
+                    rows: [
+                        ['Enter and match invoices', '', '', '', '✔', ''],
+                        ['Submit invoices for validation', '', '', '', '✔', ''],
+                        ['Review and correct invoice errors', '✔', '', '', '', ''],
+                        ['Approve payments', '✔', 'Limited', '', '', ''],
+                        ['Configure payment terms / batches', '✔', '✔', '', '✔', ''],
+                        ['Monitor workflow queues', '✔', '', '', '', ''],
+                        ['Run KPI / Audit reports', '✔', '✔', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'ar-specialist',
+                name: 'Accounts Receivable Specialist',
+                module: 'Accounts Receivable',
+                description: 'As an AR Specialist, Andy manages receivables collection and tracking in Oracle, replacing spreadsheets and manual methods.',
+                notifications: 'Check the Bell Icon for any: Approval alerts, System errors, Receipt processing notifications.',
+                mobileCapabilities: 'While invoice creation and receipt applications are best on desktop, specialists can review AR dashboards and receive alerts via mobile.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['The AR Specialist logs in through a secure browser using personal credentials. They land on the Oracle Fusion Home Page.'], system: 'Oracle' },
+                    { step: 'Navigate to Receivables Work Area', details: ['From the homepage, click the Navigator.', 'Go to: Receivables > Billing > Manage Transactions Or: Receivables > Receipts > Create Receipt depending on task.'], system: 'Oracle' },
+                    { step: 'Create and Manage Customer Invoices', details: ['Use Case: Create an AR invoice', 'Click Create Transaction', 'Select Business Unit, Transaction Type, and Customer Name', 'Enter: Invoice #, Invoice Date, Amount, Description, Distribution (Revenue Account/Codes)', 'Save and Complete'], system: 'Oracle' },
+                    { step: 'Apply Receipts', details: ['Use Case: Match payment to invoice', 'Navigate to Receivables > Receipts > Create Receipt', 'Select Business Unit, enter Customer, Amount, and Payment Method', 'Apply the receipt to an open invoice', 'Save and Post the receipt'], system: 'Oracle' },
+                    { step: 'Manage On-Account and Unapplied Receipts', details: ['Review unapplied or on-account receipts regularly', 'Use the Manage Receipts screen', 'Reassign or apply to new invoices as needed'], system: 'Oracle' },
+                    { step: 'Handle Adjustments or Write-Offs (if applicable)', details: ['If a small balance or payment issue arises:', 'Navigate to the transaction', 'Select Actions > Create Adjustment', 'Enter reason code and amount', 'Submit for approval (if required)'], system: 'Oracle' },
+                    { step: 'Generate and Review Reports', details: ['Navigate to Receivables > Reports', 'Use reports such as: Aging Reports, Transaction Summary, Receipts Register', 'Filter by customer, date, or business unit to reconcile data'], system: 'Oracle' },
+                    { step: 'Support Month-End Close Activities', details: ['Review open receivables', 'Ensure unapplied cash is resolved', 'Support the accounting team with clean data for GL posting'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Specialist', 'Manager'],
+                    rows: [
+                        ['Create and apply customer receipts', '✔', '✔'],
+                        ['Review customer account balances', '✔', '✔'],
+                        ['Post receipts to GL', '✖', '✔'],
+                        ['Process adjustments / write offs', '✖', '✔'],
+                        ['Run aging and collection reports', '✔', '✔'],
+                        ['Approve credit memos', '✖', '✔'],
+                        ['Manage customer profiles', '✖', '✔'],
+                        ['Review revenue recognition schedules', '✖', '✔']
+                    ]
+                }
+            },
+            {
+                id: 'ar-manager',
+                name: 'Accounts Receivable Manager',
+                module: 'Accounts Receivable',
+                description: 'As the Accounts Receivable Manager, Derek oversees the city’s incoming revenue processes, ensuring timely billing, accurate receipt application, and strong cash flow management. In Oracle Cloud, he shifts from manual spreadsheets and paper audits to real-time dashboards, automated workflows, and audit-ready reporting. Derek leads compliance efforts, manages exceptions, and collaborates across departments to maintain financial accuracy and accountability.',
+                notifications: 'Uses the Bell Icon and Worklist to monitor: Pending approvals (e.g., adjustments, write-offs), Workflow escalations, System alerts tied to AR exceptions.',
+                mobileCapabilities: 'Can approve memos, view reports, and monitor KPIs on mobile. However, batch reviews and financial reporting are best performed on desktop.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Derek accesses Oracle ERP using a secure browser.', 'He enters credentials to reach the Oracle Fusion Home Page and navigates to the receivables Work Area.'], system: 'Oracle' },
+                    { step: 'Access Receivables Dashboard', details: ['From the Navigator menu: Go to Receivables > Billing > Receivables Dashboard.', 'This dashboard offers visibility into invoices, customer balances, unapplied receipts, and aging reports.'], system: 'Oracle' },
+                    { step: 'Monitor Invoicing Activities', details: ['Oversees invoice generation across departments:', 'Verifies that billing events are processed.', 'Monitors invoice status (draft, completed, canceled).', 'Reviews batch invoice runs and audit history.', 'Can click into transactions to review source data and compliance with billing policies.'], system: 'Oracle' },
+                    { step: 'Approve Adjustments and Credit Memos', details: ['Navigates to Receivables > Credit Transactions:', 'Reviews requests for credit memos or adjustments.', 'Approves or rejects based on policy thresholds.', 'Escalates exceptions to Finance if necessary.'], system: 'Oracle' },
+                    { step: 'Oversee Receipt Application', details: ['Navigates to Receivables > Receipts > Manage Receipts:', 'Reviews unapplied or misapplied cash.', 'Ensures correct customer and invoice matching.', 'Monitors lockbox import or manual cash application workflows.'], system: 'Oracle' },
+                    { step: 'Monitor Collections and Aging', details: ['Uses Aging Reports and Collections Dashboards to:', 'Identify overdue balances.', 'Collaborate with collections team or business units.', 'Initiate dunning letters or escalate for collections action.'], system: 'Oracle' },
+                    { step: 'Run KPI and Audit Reports', details: ['Accesses Reports and Analytics > Financials:', 'Generates receivables turnover, unapplied cash, and overdue balances reports.', 'Reviews audit trail of transactions for compliance.', 'Analyzes receivables aging trends and team performance.'], system: 'Oracle' },
+                    { step: 'Coordinate Month-End Close Activities', details: ['Partners with Finance to ensure:', 'Receivables subledger is closed on time.', 'All receipts and adjustments are posted.', 'Revenue recognition and accounting entries are complete.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Specialist', 'Manager'],
+                    rows: [
+                        ['Create and apply customer receipts', '✔', '✔'],
+                        ['Review customer account balances', '✔', '✔'],
+                        ['Post receipts to GL', '✖', '✔'],
+                        ['Process adjustments / write offs', '✖', '✔'],
+                        ['Run aging and collection reports', '✔', '✔'],
+                        ['Approve credit memos', '✖', '✔'],
+                        ['Manage customer profiles', '✖', '✔'],
+                        ['Review revenue recognition schedules', '✖', '✔']
+                    ]
+                }
+            },
+            {
+                id: 'gl-accountant',
+                name: 'General Accountant (GL)',
+                module: 'General Accounting',
+                description: 'Gina ensures the integrity of the City’s financial records by preparing, validating, and posting journal entries in Oracle Cloud. She monitors account balances, supports reconciliations, and maintains compliance with accounting policies. Gina plays a critical role in month-end close by ensuring clean, accurate data for reporting and audit readiness.',
+                notifications: 'Use the Bell icon or Worklist to review journal approval alerts. Resolve rejections or missing information. Communicate with approvers or Finance leadership as needed.',
+                mobileCapabilities: 'Approve journal entries pending her review. Receive real-time notifications on journals, exceptions, or approvals. View dashboards or KPI summaries (if enabled by role/security). Search and view GL transactions using responsive pages.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Gina accesses Oracle ERP securely via browser. She uses her credentials to reach the Oracle Fusion Home Page.'], system: 'Oracle' },
+                    { step: 'Navigate to the General Accounting Dashboard', details: ['From the Navigator menu, Gina selects: General Accounting > Journals or General Accounting > Period Close Work Area depending on the task.'], system: 'Oracle' },
+                    { step: 'Enter Journal Entries', details: ['Use Case: Create a journal entry', 'Click Create Journal', 'Select Ledger and Business Unit', 'Enter journal category, description, and lines', 'Attach backup documentation', 'Save and Submit for approval or validation'], system: 'Oracle' },
+                    { step: 'Validate and Post Journals', details: ['Click Actions > Validate', 'If errors appear, correct and resubmit', 'Post journals individually or in batch (based on access)'], system: 'Oracle' },
+                    { step: 'Run Trial Balance & Reports', details: ['Gina uses Reports and Analytics to:', 'Run Trial Balance Report', 'Generate Journal Reports, Account Analysis, and Subledger-to-GL Reconciliation', 'Review balances for accuracy'], system: 'Oracle' },
+                    { step: 'Perform Reconciliations', details: ['Gina reviews accounts to ensure no discrepancies:', 'Use Account Monitor or Reconciliation Reports', 'Identify mismatches between subledgers (AP/AR) and GL', 'Collaborate with Finance/AP/AR to resolve issues'], system: 'Oracle' },
+                    { step: 'Support Period Close', details: ['Review unposted journals', 'Monitor Close Monitor Dashboard', 'Ensure all transactions are accounted before period-end', 'Tag journals for inclusion in period close'], system: 'Oracle' },
+                    { step: 'Support Month-End Close Activities', details: ['Gina reviews:', 'Open receivables', 'Clears unapplied cash', 'Ensures accurate, clean data is prepared for General Ledger posting—helping the team close the books smoothly and on time.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'General Accountant (GL)', 'General Accounting Manager (GL)', 'Financial Analyst (GL)'],
+                    rows: [
+                        ['Journal Entry Creation', '✔', '✔', '✖'],
+                        ['Journal Approval', '✖', '✔', '✖'],
+                        ['Run Trial Balance Reports', '✔', '✔', '✔'],
+                        ['Submit/Run Period Close', '✖', '✔', '✖'],
+                        ['Perform GL Reconciliations', '✔', '✔', '✖'],
+                        ['Review and Post Journals', '✖', '✔', '✖'],
+                        ['Manage Chart of Accounts', '✖', '✔', '✖'],
+                        ['Access Budget vs Actual Reports', '✔', '✔', '✔'],
+                        ['View Ledger & Subledger Transactions', '✔', '✔', '✔'],
+                        ['Monitor Period Close Status', '✔', '✔', '✔']
+                    ]
+                }
+            },
+            {
+                id: 'gl-manager',
+                name: 'General Accounting Manager (GL)',
+                module: 'General Accounting',
+                description: 'Mandy leads the city’s general ledger operations, ensuring accurate financial reporting, timely close processes, and compliance with regulatory policies. With full access to Oracle Cloud, she monitors subledger activity, resolves exceptions, oversees team performance, and drives period-end and year-end closings. Mandy uses dashboards and KPIs to track accounting accuracy and guide financial strategy.',
+                notifications: 'Mandy receives real-time Oracle alerts for: Journals pending approval, Periods ready to close, Exceptions and rejected postings. She reviews these via the Bell icon or in her Worklist and takes action as needed.',
+                mobileCapabilities: 'Mandy can: Approve journals, View dashboard summaries, Monitor KPIs on the Oracle mobile app. For journal creation or batch posting, desktop is preferred.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Mandy securely logs into Oracle ERP and lands on the Oracle Fusion homepage..'], system: 'Oracle' },
+                    { step: 'Navigate to the General Accounting Dashboard', details: ['From the Navigator menu, Gina selects: General Accounting > Journals or General Accounting > Period Close Work Area depending on the task.'], system: 'Oracle' },
+                    { step: 'Review and Approve Journal Entries', details: ['Mandy views journals submitted by her team, checks supporting documentation, and approves them using: Journals > Manage Journals > Actions > Approve.'], system: 'Oracle' },
+                    { step: 'Monitor Subledger Activity', details: ['She checks for subledger entries (e.g., AP, AR, Projects) that haven’t transferred or posted.', 'Uses tools like: Subledger Accounting > Transfer Journals to GL and Journals > Posting Status Monitor.'], system: 'Oracle' },
+                    { step: 'Investigate & Resolve Exceptions', details: ['Flags any journals in error or suspense accounts, correcting them by rerouting to staff or adjusting values directly.'], system: 'Oracle' },
+                    { step: 'Track KPIs & Generate Reports', details: ['Accesses dashboards for: Trial Balance, Journal Line Detail, Audit Trail, Period Close Exceptions.', 'These reports support real-time performance management and audit readiness.'], system: 'Oracle' },
+                    { step: 'Coordinate With Cross-Functional Teams', details: ['Mandy collaborates with Finance, Procurement, and Projects teams to confirm all journals, accruals, and adjustments are completed for period-end.'], system: 'Oracle' },
+                    { step: 'Perform Close-Out Activities', details: ['Mandy initiates and confirms: Subledger close, GL period close, Year-end journal entries, Final reconciliations and financial package review.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'General Accountant (GL)', 'General Accounting Manager (GL)', 'Financial Analyst (GL)'],
+                    rows: [
+                        ['Journal Entry Creation', '✔', '✔', '✖'],
+                        ['Journal Approval', '✖', '✔', '✖'],
+                        ['Run Trial Balance Reports', '✔', '✔', '✔'],
+                        ['Submit/Run Period Close', '✖', '✔', '✖'],
+                        ['Perform GL Reconciliations', '✔', '✔', '✖'],
+                        ['Review and Post Journals', '✖', '✔', '✖'],
+                        ['Manage Chart of Accounts', '✖', '✔', '✖'],
+                        ['Access Budget vs Actual Reports', '✔', '✔', '✔'],
+                        ['View Ledger & Subledger Transactions', '✔', '✔', '✔'],
+                        ['Monitor Period Close Status', '✔', '✔', '✔']
+                    ]
+                }
+            },
+            {
+                id: 'financial-analyst',
+                name: 'Financial Analyst (GL)',
+                module: 'General Accounting',
+                description: 'Frank plays a critical role in helping the city make data-driven decisions by analyzing financial trends and budget performance. Using Oracle ERP’s powerful reporting and analytics tools, he forecasts, creates dashboards, and monitors financial KPIs to support strategic planning. Frank doesn’t enter journals or approve transactions but relies on accurate ledger data to develop insights and tell the story behind the numbers.',
+                notifications: 'Frank does not receive workflow approvals but gets system alerts for: Scheduled report completions, Errors in Smart View connections, Changes in report parameters or data models.',
+                mobileCapabilities: 'Frank can: View dashboards and summary KPIs, Approve scheduled report delivery, Access visual insights on the go. Excel and Smart View tools are only available on desktop.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Frank accesses Oracle ERP securely via browser.', 'Enters credentials and lands on the Oracle Fusion homepage.'], system: 'Oracle' },
+                    { step: 'Access Financial Reporting Center', details: ['From the Navigator, he goes to: Tools > Reports and Analytics or General Accounting > Financial Reporting Center to access real-time financial data.'], system: 'Oracle' },
+                    { step: 'Run Financial Statements & KPI Dashboards', details: ['Uses standard and customized reports such as:', 'Actual vs. Budget', 'Expense Trends by Department', 'GL Trial Balance', 'Forecast Accuracy Over Time.'], system: 'Oracle' },
+                    { step: 'Build and Schedule Reports', details: ['Uses Oracle Smart View or OTBI (Oracle Transactional Business Intelligence) to:', 'Create ad hoc reports', 'Build Excel dashboards', 'Set up scheduled report delivery.'], system: 'Oracle' },
+                    { step: 'Share Insights With Stakeholders', details: ['Exports visual reports and narratives to share with Finance, Budget, or Executive teams.', 'Highlights risks, trends, and forecasts for monthly reviews.'], system: 'Oracle' },
+                    { step: 'Drill Down Into GL Data', details: ['Reviews transaction-level detail from summary reports.', 'Navigates from KPIs to journal lines, cost centers, or periods to understand anomalies.'], system: 'Oracle' },
+                    { step: 'Support Budget Planning Cycles', details: ['Partners with Budget and Department Leads to:', 'Review past performance', 'Run variance reports', 'Provide insights for future allocations.'], system: 'Oracle' },
+                    { step: 'Assist With Period-End Reviews', details: ['While not responsible for journal entries, Frank supports close activities by flagging missing data, identifying trends, or validating report consistency.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'General Accountant (GL)', 'General Accounting Manager (GL)', 'Financial Analyst (GL)'],
+                    rows: [
+                        ['Journal Entry Creation', '✔', '✔', '✖'],
+                        ['Journal Approval', '✖', '✔', '✖'],
+                        ['Run Trial Balance Reports', '✔', '✔', '✔'],
+                        ['Submit/Run Period Close', '✖', '✔', '✖'],
+                        ['Perform GL Reconciliations', '✔', '✔', '✖'],
+                        ['Review and Post Journals', '✖', '✔', '✖'],
+                        ['Manage Chart of Accounts', '✖', '✔', '✖'],
+                        ['Access Budget vs Actual Reports', '✔', '✔', '✔'],
+                        ['View Ledger & Subledger Transactions', '✔', '✔', '✔'],
+                        ['Monitor Period Close Status', '✔', '✔', '✔']
+                    ]
+                }
+            },
+            {
+                id: 'assets-accountant',
+                name: 'Assets Accountant',
+                module: 'Fixed Assets',
+                description: 'Alisha is responsible for maintaining accurate records of the city\'s fixed assets—everything from vehicles and equipment to buildings. In Oracle Cloud, she uses the Assets module to track asset acquisitions, depreciation, transfers, and retirements. This helps ensure financial compliance, audit readiness, and proper reporting of the city\'s assets. Previously, this work might have involved Excel trackers and disconnected processes—but now, it’s managed in a centralized system.',
+                notifications: 'Alerts if asset entries are incomplete. Warnings when depreciation errors occur. Receives notifications when accounting periods open or close.',
+                mobileCapabilities: 'Limited. Alisha can view reports or dashboards. Most tasks like depreciation or adjustments must be done on a desktop.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Alisha signs into Oracle using her secure login.', 'Accesses the main dashboard via a browser.', 'The homepage shows icons (called “tiles”) for different modules like Assets, Payables, and General Ledger.'], system: 'Oracle' },
+                    { step: 'Navigate to the Fixed Assets', details: ['From the Navigator (menu icon): Go to: Fixed Assets > Additions or Asset Inquiry.', 'This is where she performs most of her day-to-day tasks.'], system: 'Oracle' },
+                    { step: 'Record Asset Additions', details: ['Alisha adds new assets into Oracle:', 'Manually enters or imports asset details (asset type, cost, description, location, etc.).', 'Assigns asset to the correct category.', 'Links the asset to an invoice if it came from Payables.', 'Verifies all required fields are complete.'], system: 'Oracle' },
+                    { step: 'Assign Item to Inventory Organizations', details: ['Navigate to Item Organizations tab within the item record.', 'Add the item to one or more inventory organizations.', 'Validate: Warehouse visibility, Tracking control, Lot/serial control (if applicable).', 'This ensures the item is usable in transactions (purchasing, receiving, etc.).'], system: 'Oracle' },
+                    { step: 'Process Depreciation', details: ['Depreciation is the reduction of asset value over time.', 'Runs the Depreciation Process monthly.', 'Ensures Oracle calculates depreciation automatically based on the asset’s useful life.', 'Reviews the Depreciation Report for audit compliance.'], system: 'Oracle' },
+                    { step: 'Perform Transfers or Adjustments', details: ['When an asset moves between departments or locations, Alisha:', 'Updates the location, cost center, or book in Oracle.', 'Records any adjustments (e.g., upgrades or changes to asset value).'], system: 'Oracle' },
+                    { step: 'Retire or Dispose of Assets', details: ['For assets that are no longer in use:', 'Initiates Retirement Transaction.', 'Selects reason code (e.g., sold, scrapped, donated).', 'Records any proceeds if applicable.', 'System generates retirement journal entries for GL.'], system: 'Oracle' },
+                    { step: 'Reconcile Asset Ledger with GL', details: ['Before month-end:', 'Runs the Asset Cost Summary and Depreciation Reserve Report.', 'Verifies that totals match the General Ledger.', 'Flags any discrepancies for resolution.'], system: 'Oracle' },
+                    { step: 'Support Month-End Close', details: ['At close, Alisha:', 'Finalizes any outstanding asset additions or retirements.', 'Posts depreciation entries to GL.', 'Confirms that all reconciliations are complete.', 'Submits fixed asset reports to Finance or Audit teams.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Assets Accountant', 'Asset Accountant Manager'],
+                    rows: [
+                        ['Create Asset Additions', '✔', '✔'],
+                        ['Perform Depreciation Run', '✔', '✔'],
+                        ['Transfer/Retire Assets', '✔', '✔'],
+                        ['View and Audit Asset Ledger', '✔', '✔'],
+                        ['Reconcile Bank Statements', '', ''],
+                        ['Manage Bank Accounts', '', ''],
+                        ['Run Cash Forecast Reports', '', ''],
+                        ['Review Expense Reports', '', ''],
+                        ['Enforce Expense Policy', '', ''],
+                        ['Approve/Reject Expenses', '', ''],
+                        ['Run Expense Audit Reports', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'assets-manager',
+                name: 'Assets Accountant Manager',
+                module: 'Fixed Assets',
+                description: 'Maddie leads the city’s asset accounting operations, ensuring asset lifecycle processes—from acquisitions to retirements—are accurate, policy-compliant, and aligned with reporting deadlines. In Oracle Cloud, she oversees workflows, manages depreciation schedules, approves asset changes, and coordinates reconciliations between the Fixed Assets subledger and General Ledger. Her leadership ensures data integrity and audit-readiness across the city\'s asset portfolio.',
+                notifications: 'Notified of: Pending asset retirement approvals, Depreciation batch status, Any failed journal postings. Reviews flagged exceptions or policy breaches.',
+                mobileCapabilities: 'Can review dashboards or approve asset requests on mobile. Full reconciliation and reporting should be done via desktop for data access and formatting control.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Maddie logs into the Oracle Cloud homepage using secure credentials.', 'The homepage presents access tiles for key areas, including Fixed Assets, General Ledger, and Reports.'], system: 'Oracle' },
+                    { step: 'Access the Fixed Assets Dashboard', details: ['From the Navigator: Go to: Fixed Assets > Assets Dashboard.', 'Here, she can oversee asset statuses, recent additions, pending retirements, and audit exceptions.'], system: 'Oracle' },
+                    { step: 'Review and Approve Asset Transactions', details: ['Maddie audits or approves the following:', 'New asset additions for correct classification, location, and documentation.', 'Transfers and adjustments made by Asset Accountants.', 'Retirements to ensure proper reason codes and financial impact are captured.'], system: 'Oracle' },
+                    { step: 'Oversee Monthly Depreciation Process', details: ['Maddie initiates and monitors depreciation runs:', 'Ensures that all new assets are included.', 'Reviews the Depreciation Projection Report for financial planning.'], system: 'Oracle' },
+                    { step: 'Coordinate Reconciliation with General Ledger', details: ['Before close:', 'Runs Asset Cost Summary, Depreciation Reserve, and Additions/Retirement Reports.', 'Confirms data aligns with GL balances.', 'Flags and resolves variances with the Finance team.'], system: 'Oracle' },
+                    { step: 'Manage Period Close for Fixed Assets', details: ['Maddie:', 'Closes open accounting periods after review.', 'Locks prior periods to prevent late entries.', 'Posts journals for depreciation and retirements to GL.', 'Ensures all transactions are processed before cutoff.'], system: 'Oracle' },
+                    { step: 'Support Audits and Reporting', details: ['As the team lead, Maddie:', 'Pulls audit-ready reports for internal and external audits.', 'Supports year-end asset verification and inventory reviews.', 'Maintains compliance with asset capitalization and retirement policies.'], system: 'Oracle' },
+                    { step: 'Final Review and Closeout Activities', details: ['At the end of each period:', 'Confirms all asset records are up to date.', 'Approves any exceptions or open items.', 'Reviews dashboards for red flags.', 'Marks asset reports as final and shares summaries with Finance and City stakeholders.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Assets Accountant', 'Asset Accountant Manager'],
+                    rows: [
+                        ['Create Asset Additions', '✔', '✔'],
+                        ['Perform Depreciation Run', '✔', '✔'],
+                        ['Transfer/Retire Assets', '✔', '✔'],
+                        ['View and Audit Asset Ledger', '✔', '✔'],
+                        ['Reconcile Bank Statements', '', ''],
+                        ['Manage Bank Accounts', '', ''],
+                        ['Run Cash Forecast Reports', '', ''],
+                        ['Review Expense Reports', '', ''],
+                        ['Enforce Expense Policy', '', ''],
+                        ['Approve/Reject Expenses', '', ''],
+                        ['Run Expense Audit Reports', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'cash-manager',
+                name: 'Cash Manager',
+                module: 'Cash Management',
+                description: 'Carrie is responsible for managing citywide cash flow and ensuring accurate and timely reconciliation of all bank accounts in Oracle Cloud. She oversees bank statement loading, reconciliations, and the setup/maintenance of bank accounts. With Oracle, Carrie transitions from manual spreadsheets and disconnected banking portals to a centralized dashboard that gives her real-time visibility and control over liquidity positions and cash operations. Her work ensures that the city maintains financial integrity, cash visibility, and compliance across accounts.',
+                notifications: 'Alerted when: Bank statement imports fail, Reconciliation exceptions exceed tolerance, Receives reminders for unreconciled items during period close. May receive FYI alerts from GL or Treasury.',
+                mobileCapabilities: 'View dashboards (e.g., bank balances, reconciliation status). Access alerts and approvals (read-only). Most transaction-level activity is desktop-based.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Carrie logs into Oracle Fusion Cloud using secure credentials to access the Cash Management dashboard.', 'Access via desktop browser (recommended)', 'Can review dashboards from mobile (read-only)'], system: 'Oracle' },
+                    { step: 'Navigate to Cash Management', details: ['From the Navigator menu: Go to: Cash Management > Bank Statements and Reconciliation.', 'Here she can view cash positions, access reconciliation tools, and initiate key treasury functions.'], system: 'Oracle' },
+                    { step: 'Review Bank Statements', details: ['Carrie navigates to Bank Statements and reviews uploaded data for the day/week:', 'Import statements via bank integrations or file upload', 'Review matched vs. unmatched transactions', 'Flag exceptions.'], system: 'Oracle' },
+                    { step: 'Perform Bank Reconciliation', details: ['Use Reconciliation Workbench to:', 'Auto-reconcile matched transactions', 'Manually reconcile exceptions', 'View reconciliation status (e.g., Reconciled, Partially Reconciled, Unreconciled).'], system: 'Oracle' },
+                    { step: 'Manage Bank Accounts', details: ['Carrie has access to:', 'View and update existing bank account records', 'Maintain account attributes (e.g., cash pool, GL mapping)', 'Work with Treasury or Finance for setup of new bank accounts.'], system: 'Oracle' },
+                    { step: 'Monitor Cash Position Reports', details: ['Carrie runs or schedules reports including:', 'Cash Forecast Reports', 'Daily Cash Position', 'Unreconciled Transactions Summary.', 'She uses filters for date ranges, banks, or business units.'], system: 'Oracle' },
+                    { step: 'Post Cash Transactions to GL', details: ['After reconciliation:', 'Post entries from Cash Management to GL', 'Review accounting entries', 'Coordinate with GL team to confirm data integrity.'], system: 'Oracle' },
+                    { step: 'Support Month-End Close', details: ['Carrie performs key close activities such as:', 'Finalizing reconciliations for the month', 'Clearing outstanding exceptions', 'Verifying ledger postings are complete', 'Supporting Finance with audit-ready documentation.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Cash Manager'],
+                    rows: [
+                        ['View and manage bank accounts', '✔'],
+                        ['Create and reconcile bank statements', '✔'],
+                        ['Manage cash positioning and forecasting', '✔'],
+                        ['Run Cash Activity and Reconciliation Reports', '✔'],
+                        ['Approve bank account transfers', '✔'],
+                        ['Configure bank statement rules', '✔'],
+                        ['Access Treasury dashboards', '✔']
+                    ]
+                }
+            },
+            {
+                id: 'budget-manager',
+                name: 'Budget Manager',
+                module: 'Budget',
+                description: 'Benny manages department-level budgets across the city. He relies on Oracle Cloud to review, monitor, and validate budget allocations, spending variances, and forecasting insights — all without offline spreadsheets or manual routing.',
+                notifications: 'Benny receives workflow notifications if any budget changes are routed for his review or if approvals are pending. Alerts may appear via the Bell icon or be delivered via email integration.',
+                mobileCapabilities: 'View budget dashboards and reports on mobile. Cannot create or submit amendments from mobile. Use mobile for approvals and monitoring only.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Benny logs into Oracle ERP through a secure browser.', 'Enters credentials and is directed to the Oracle Fusion Home Page.'], system: 'Oracle' },
+                    { step: 'Navigate to the Budget Work Area', details: ['From the homepage: Click the Navigator (hamburger menu).', 'Go to Budgeting > Budget Monitor, or Budgeting > Budget vs Actual Dashboard.'], system: 'Oracle' },
+                    { step: 'Access Budget vs Actual Reports', details: ['Select preconfigured dashboard reports by department, account, or fiscal period.', 'Run Budget vs Actual Variance, Spending Trend, or Forecast Performance reports.', 'Filter by fund, org, or project as needed.'], system: 'Oracle' },
+                    { step: 'Review Budget Allocations & Usage', details: ['Track real-time burn rates.', 'Identify overages or underutilized budgets.', 'Drill into line-item summaries and departmental breakdowns.'], system: 'Oracle' },
+                    { step: 'Coordinate with Departments on Budget Adjustments', details: ['Export variance reports.', 'Schedule follow-ups with department heads for explanations.', 'Prepare supporting data for requests or reallocations.'], system: 'Oracle' },
+                    { step: 'Submit Budget Recommendations for Routing (if applicable)', details: ['Use Oracle forms or templates to draft adjustments.', 'Attach reports and justifications.', 'Route to Budget Director or Finance Approver for workflow-based approval.'], system: 'Oracle' },
+                    { step: 'Forecast Future Spending', details: ['Use Smart View (Excel-based Oracle plugin) or in-system forecasting tools.', 'Analyze prior trends and seasonal impact.', 'Generate projected spend reports for the next quarter/year.'], system: 'Oracle' },
+                    { step: 'Support Close Readiness & Compliance Reviews', details: ['Before period-end: Ensure departments aren’t overspending, Confirm all budget amendments are posted.', 'During close: Provide variance analysis to GL/Finance teams, Support compliance reviews with audit-ready summaries.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Budget Manager'],
+                    rows: [
+                        ['View and maintain budget versions', '✔'],
+                        ['Enter and edit budget lines', '✔'],
+                        ['Submit budgets for approval', '✔'],
+                        ['Review and track budget vs. actuals', '✔'],
+                        ['Approve budget submissions', '✔'],
+                        ['Manage chart of accounts and configuration', '✔'],
+                        ['Access financial reporting tools', '✔'],
+                        ['Override budget controls and thresholds', '✔']
+                    ]
+                }
+            },
+            {
+                id: 'grant-admin',
+                name: 'Grant Administrator',
+                module: 'Grant Management',
+                description: 'Gail oversees the end-to-end lifecycle of sponsored awards and grants. Using Oracle ERP, she sets up awards, defines funding sources, configures budgets, and ensures grant compliance. Gail replaces legacy manual entry with a centralized digital process, streamlining audit-readiness and real-time visibility across grant activities.',
+                notifications: 'Alerted when: Receives alerts for expired awards or missing budgets. Approves or routes changes in key award elements. Notified when budgets are submitted by PIs or finance.',
+                mobileCapabilities: 'Approvals can be done via mobile. Setup and budget entry typically requires desktop.',
+                workflow: [
+                    { step: 'Log In to Oracle ERP', details: ['Gail logs into the Oracle Cloud system by entering her secure credentials. Once authenticated, she is directed to the Oracle Fusion Home Page, which acts as the centralized launch point for all Grants Management activities.'], system: 'Oracle' },
+                    { step: 'Navigate to Award Management', details: ['From the homepage, Gail uses the Navigator menu to access grant-specific work areas.', 'She selects: Grants Management > Awards to create or update award records, Grants Management > Projects or Budgets to manage funding details and task structures.'], system: 'Oracle' },
+                    { step: 'Create or Edit Awards', details: ['Gail initiates a new award setup or edits an existing one. This involves:', 'Defining the sponsor\'s name, award type (e.g., federal, state, private), and award duration.', 'Linking the award to the appropriate project structure.', 'Assigning key team members like the Principal Investigator (PI) and other project stakeholders.'], system: 'Oracle' },
+                    { step: 'Set Up Grant Budgets', details: ['Gail configures the financial framework of the award by:', 'Entering budget lines categorized by cost types (e.g., personnel, travel, equipment).', 'Specifying funding limits per category or project phase.', 'Setting the period of performance and encoding any sponsor-imposed restrictions.'], system: 'Oracle' },
+                    { step: 'Assign Project Tasks', details: ['Gail links each award to the corresponding project(s) and defines detailed tasks by:', 'Establishing the hierarchy of award → project → task.', 'Mapping budget lines to project tasks.', 'Identifying expenditure types eligible for reimbursement.'], system: 'Oracle' },
+                    { step: 'Monitor Budget vs Actuals', details: ['Using the Grants Dashboard, Gail tracks performance of the award:', 'Monitors actual spend vs. budgeted allocations in real time.', 'Flags exceptions such as overspending, expired funding periods, or compliance issues.', 'Prepares and exports financial reports for internal leadership or external sponsors.'], system: 'Oracle' },
+                    { step: 'Revise Awards as Needed', details: ['Gail manages ongoing adjustments to maintain data integrity and compliance:', 'Updates award funding amounts or extends project timelines.', 'Reassigns personnel or updates cost-sharing arrangements.', 'Modifies indirect cost recovery rates based on new policies or sponsor guidelines.'], system: 'Oracle' },
+                    { step: 'Support Month-End Close', details: ['At the end of each financial period, Gail performs key closeout tasks:', 'Validates that all award-related transactions are accurately posted.', 'Ensures that budgets are reconciled and align with actual expenditures.', 'Compiles required sponsor reports and submits them within the deadline.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Grant Admin', 'Principal Investigator (PI)', 'Grants Accountant / Project-Budget Manager', 'Grant Approver / Reviewer', 'Grants Inquiry Role', 'Project Accountant'],
+                    rows: [
+                        ['Create & maintain awards', '✔', '', '', '', '', ''],
+                        ['Create & adjust project budgets', '✔', '✔', '✔', '', '', ''],
+                        ['Submit budgets for approval', '✔', '✔', '✔', '', '', ''],
+                        ['View grant & project reports', '✔', '✔', '✔', '✔', '✔', '✔'],
+                        ['Approve budgets & amendments', '', '', '', '✔', '', ''],
+                        ['Run audit & compliance reports', '✔', '', '✔', '✔', '', '✔'],
+                        ['Manage funding sources & billing', '✔', '', '✔', '', '', ''],
+                        ['Submit grant expenses', '', '✔', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'principal-investigator',
+                name: 'Principal Investigator (PI)',
+                module: 'Grant Management',
+                description: 'Dr. Priya is responsible for the scientific and fiscal execution of the sponsored project. In Oracle ERP, she monitors award spending, reviews transactions, approves expenses, and ensures that the research activities stay within sponsor guidelines. Her role is less about entering data and more about review, oversight, and timely approvals.',
+                notifications: 'Notified when team members submit expenses or requisitions. Receives alerts about expiring awards or unspent funds. System flags missing justifications or overdue approvals.',
+                mobileCapabilities: 'Can approve expenses and requisitions on the go. Access summary dashboards and alerts. Full reporting or revision workflows are best on desktop.',
+                workflow: [
+                    { step: 'Log In to Oracle ERP', details: ['Dr. Priya accesses the Oracle ERP system by: Opening a secure browser and navigating to the Oracle Cloud login page. Entering her credentials (username and password) to reach the Oracle Fusion Home Page.'], system: 'Oracle' },
+                    { step: 'Navigate to Project or Award Summary', details: ['From the main dashboard, Dr. Priya clicks the Navigator (hamburger menu) and selects: Grants Management > Awards to access award specific data. Project Financial Management Dashboard to view summaries of expenditures, budgets, and commitments.'], system: 'Oracle' },
+                    { step: 'Review Award and Budget Information', details: ['Dr. Priya: Selects the appropriate award from the dashboard. Reviews allocated budget by cost category (personnel, supplies, travel, etc.) and time period. Identifies available vs. committed funds. Checks for system alerts like "low balance" or "budget overrun warnings."'], system: 'Oracle' },
+                    { step: 'Review Transactions', details: ['Using inquiry tools, Dr. Priya: Views line-by-line transactions against the award. Sorts by date, amount, or expenditure type. Flags any unusual activity (e.g., unexpected vendors, large amounts). Contacts the research administrator or finance team to resolve discrepancies.'], system: 'Oracle' },
+                    { step: 'Approve Expenditures', details: ['Dr. Priya approves: Expense reports submitted by research team, Purchase requisitions or orders for lab supplies, Time charged against the award (if applicable).'], system: 'Oracle' },
+                    { step: 'Submit Budget Revisions or Justifications', details: ['If adjustments are required: Dr. Priya works with the Grant Administrator to submit a budget reallocation request. She writes narrative justifications to explain financial changes or respond to sponsor audit questions. May be asked to approve or review changes before they are submitted to the sponsor.'], system: 'Oracle' },
+                    { step: 'Track Progress Against Budget', details: ['Through the Grants Dashboard, Dr. Priya can: Track spending trends (burn rate). Ensure expenses align with the project’s timeline and milestones. Identify risks of under-spending (potential loss of funds) or over-spending (compliance issues).'], system: 'Oracle' },
+                    { step: 'Prepare for Periodic Review or Closeout', details: ['When the award period ends: Dr. Priya reviews all final transactions for accuracy. Confirms that all deliverables have been met. Works with Grants/Finance to certify the final financial report. Ensures that any unspent funds are returned or reallocated based on sponsor rules.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Grant Admin', 'Principal Investigator (PI)', 'Grants Accountant / Project-Budget Manager', 'Grant Approver / Reviewer', 'Grants Inquiry Role', 'Project Accountant'],
+                    rows: [
+                        ['Create & maintain awards', '✔', '', '', '', '', ''],
+                        ['Create & adjust project budgets', '✔', '✔', '✔', '', '', ''],
+                        ['Submit budgets for approval', '✔', '✔', '✔', '', '', ''],
+                        ['View grant & project reports', '✔', '✔', '✔', '✔', '✔', '✔'],
+                        ['Approve budgets & amendments', '', '', '', '✔', '', ''],
+                        ['Run audit & compliance reports', '✔', '', '✔', '✔', '', '✔'],
+                        ['Manage funding sources & billing', '✔', '', '✔', '', '', ''],
+                        ['Submit grant expenses', '', '✔', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'grants-accountant',
+                name: 'Grants Accountant Project/Budget Manager',
+                module: 'Grant Management',
+                description: 'Jordan is responsible for managing award financials, ensuring transactions are compliant with sponsor terms, maintaining budget integrity, and facilitating monthly reconciliation. In Oracle Cloud, Jordan uses real-time dashboards to validate expenditures, manage project budgets, support audits, and communicate with departments about grant spend.',
+                notifications: 'Receives alerts for budget overages, pending approvals, and upcoming award expirations. System-generated notifications for failed validations or incomplete transactions.',
+                mobileCapabilities: 'Approve budgets or transactions on the go. View reports or alerts. Best used on desktop for reconciliation and detailed reviews.',
+                workflow: [
+                    { step: 'Log In to Oracle ERP', details: ['Jordan logs in securely to the Oracle Fusion Cloud using approved credentials.', 'Upon login, he is directed to the homepage where he can access dashboards and work areas tailored to grant and budget functions.'], system: 'Oracle' },
+                    { step: 'Navigate to Grants and Budget Work Area', details: ['From the Navigator menu, Jordan selects: Grants Management > Awards, Project Financial Management > Budgetary Control Dashboard, Tools > Reports & Analytics.', 'These areas allow him to manage budgets, review approvals, and run reconciliations.'], system: 'Oracle' },
+                    { step: 'Manage Award Budgets', details: ['Enter initial project budget', 'Review approved funding allocations by cost category', 'Revise budgets when changes occur (e.g., sponsor modification)', 'Perform budget transfers or corrections.'], system: 'Oracle' },
+                    { step: 'Review and Validate Transactions', details: ['View expenses submitted against awards', 'Flag non-compliant or unallowable costs', 'Confirm expenditure types are accurate', 'Support adjustments and journal entries if needed.'], system: 'Oracle' },
+                    { step: 'Monitor and Support Expenditure Approvals', details: ['Collaborates with Principal Investigators (PIs) and department users to: Review approvals in process, Provide funding or policy clarification, Assists in reconciling rejected or delayed approvals to keep project timelines on track.'], system: 'Oracle' },
+                    { step: 'Generate Monthly Reports & Reconciliations', details: ['Run reports like Budget to Actual, Commitment Reports, or Burn Rate', 'Compare subledger entries with GL balances', 'Resolve discrepancies with AP, Payroll, and Procurement teams.'], system: 'Oracle' },
+                    { step: 'Support Audits and Sponsor Reporting', details: ['Provide documentation for internal/external audits', 'Assist with quarterly and year-end reporting', 'Maintain compliance logs and justification documentation.'], system: 'Oracle' },
+                    { step: 'Period Close Support', details: ['Finalize transactions', 'Ensure award budgets are reconciled', 'Flag expiring awards and prepare for closeout.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Grant Admin', 'Principal Investigator (PI)', 'Grants Accountant / Project-Budget Manager', 'Grant Approver / Reviewer', 'Grants Inquiry Role', 'Project Accountant'],
+                    rows: [
+                        ['Create & maintain awards', '✔', '', '', '', '', ''],
+                        ['Create & adjust project budgets', '✔', '✔', '✔', '', '', ''],
+                        ['Submit budgets for approval', '✔', '✔', '✔', '', '', ''],
+                        ['View grant & project reports', '✔', '✔', '✔', '✔', '✔', '✔'],
+                        ['Approve budgets & amendments', '', '', '', '✔', '', ''],
+                        ['Run audit & compliance reports', '✔', '', '✔', '✔', '', '✔'],
+                        ['Manage funding sources & billing', '✔', '', '✔', '', '', ''],
+                        ['Submit grant expenses', '', '✔', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'grant-approver',
+                name: 'Grant Approver / Reviewer',
+                module: 'Grant Management',
+                description: 'Aniva is responsible for reviewing and approving grant-related transactions to ensure they align with sponsor requirements and internal policies. She collaborates with the Grants Accountant, Principal Investigator (PI), and department finance team to validate transactions, resolve issues, and maintain audit compliance.',
+                notifications: 'System alerts for pending approvals, escalations, or policy violations. Email reminders for transactions nearing deadline or at risk of aging out.',
+                mobileCapabilities: 'Approve or reject items via Oracle mobile app. Access basic transaction details on the go. Best used on desktop for full document review.',
+                workflow: [
+                    { step: 'Log In to Oracle ERP', details: ['Aniva securely logs in to Oracle Fusion Cloud via a web browser.', 'She lands on the homepage and navigates to her personalized Worklist and Grants Dashboard.'], system: 'Oracle' },
+                    { step: 'Navigate to Approval Worklist & Grants Dashboard', details: ['Using the Navigator, she selects: Grants Management > Awards, Grants Management > Projects, Project Financial Management > Project Control Dashboard.', 'These work areas allow Aniva to quickly access pending approvals and relevant grant data.'], system: 'Oracle' },
+                    { step: 'Review Submitted Transactions', details: ['Access pending approvals via her Worklist', 'Review budget submissions, amendments, and expenditure justifications', 'Check for accuracy and alignment with award guidelines.'], system: 'Oracle' },
+                    { step: 'Approve or Reject Submissions', details: ['Approves compliant expenditures within her delegation of authority.', 'If corrections are needed: Rejects with comments explaining the issue. Notifies requestor or PI to revise and resubmit. Escalates exceptions or high-risk items to Finance or the Grants Accountant as needed.'], system: 'Oracle' },
+                    { step: 'Track Approval Status & Workflow', details: ['Monitors the status of pending and completed approvals.', 'Uses the workflow trail to confirm that: All required approvers are included. Transactions move efficiently through the system. Collaborates with the Grants team and PI to prevent bottlenecks or missed deadlines.'], system: 'Oracle' },
+                    { step: 'Validate Compliance and Audit Readiness', details: ['Ensure transactions include necessary backup (receipts, justifications)', 'Confirm expenditures fall within approved scope and timing', 'Prepare and support internal control documentation.'], system: 'Oracle' },
+                    { step: 'Coordinate with Department and Finance', details: ['Support compliance training', 'Participate in reviews during period-end', 'Flag any policy inconsistencies for revision.'], system: 'Oracle' },
+                    { step: 'Period-End Readiness', details: ['Makes sure all pending approvals are cleared by close deadlines.', 'Works with the Finance team to ensure costs are approved and posted within the current accounting period.', 'Supports efforts to close out grants before fiscal year-end or sponsor deadlines.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Grant Admin', 'Principal Investigator (PI)', 'Grants Accountant / Project-Budget Manager', 'Grant Approver / Reviewer', 'Grants Inquiry Role', 'Project Accountant'],
+                    rows: [
+                        ['Create & maintain awards', '✔', '', '', '', '', ''],
+                        ['Create & adjust project budgets', '✔', '✔', '✔', '', '', ''],
+                        ['Submit budgets for approval', '✔', '✔', '✔', '', '', ''],
+                        ['View grant & project reports', '✔', '✔', '✔', '✔', '✔', '✔'],
+                        ['Approve budgets & amendments', '', '', '', '✔', '', ''],
+                        ['Run audit & compliance reports', '✔', '', '✔', '✔', '', '✔'],
+                        ['Manage funding sources & billing', '✔', '', '✔', '', '', ''],
+                        ['Submit grant expenses', '', '✔', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'grants-inquiry',
+                name: 'Grants Inquiry Role',
+                module: 'Grant Management',
+                description: 'Sam is a department analyst or support team member who needs read-only access to grant financials. This role is ideal for users who need to track spending, award status, and project progress without making updates or approvals. Sam helps department leaders stay informed by pulling accurate, up-to-date data directly from Oracle Cloud—no more relying on offline spreadsheets or back-and-forth emails.',
+                notifications: 'Sam does not receive approval notifications. May receive shared dashboard alerts or announcements (if assigned).',
+                mobileCapabilities: 'View dashboards and reports on Oracle mobile app. Limited interactivity—ideal for high-level review only. Desktop preferred for full reporting functions.',
+                workflow: [
+                    { step: 'Log In to Oracle ERP', details: ['Sam logs into Oracle Cloud securely to review real-time grant information.'], system: 'Oracle' },
+                    { step: 'Navigate to Grant and Project Dashboards', details: ['Using the Navigator menu, Sam clicks through the following paths to locate real-time data: Grants Management > Manage Awards – for award level insights. Project Financial Management > Project Financial Reporting – for project-level budget and spending details. Reports and Analytics > Financial Reports – to generate or export predefined reports.'], system: 'Oracle' },
+                    { step: 'View Award Details and Project Data', details: ['Once on the relevant dashboard, Sam can: Search for awards or projects using filters like Project Name, PI Name, Award Number, or Department. View award summaries including: Total Awarded Amount.'], system: 'Oracle' },
+                    { step: 'Run Reports', details: ['Pull standardized reports like: Award Budget vs Actual, Award Performance Summary, Inception-to-Date Financials. Export reports to Excel or PDF for leadership or audits.'], system: 'Oracle' },
+                    { step: 'Drill into Transactions (Read-Only)', details: ['View individual expense lines and justifications. See PO numbers, payees, and invoice status. Identify project commitments or overages to flag for others.'], system: 'Oracle' },
+                    { step: 'No Transaction Entry Access', details: ['Sam’s role is read-only. He cannot: Enter or approve expenses, Submit purchase requisitions, Make budget changes or edit project structures, Approve time or labor charges. All findings must be routed to the appropriate owner (PI, Grants Admin, or Finance).'], system: 'Oracle' },
+                    { step: 'Collaborate and Support Compliance', details: ['Sam plays a supporting role by: Sharing real-time snapshots with PIs and department heads. Highlighting budget risks or pending actions to Grants Admins. Supporting sponsor updates by gathering accurate data for presentations or narratives.'], system: 'Oracle' },
+                    { step: 'Assist with Period-End Closeout', details: ['During month-end or project closeout, Sam helps ensure data readiness by: Verifying data consistency across awards and tasks. Flagging open commitments or transactions needing attention. Generating reconciliation reports and identifying variances (for others to resolve).'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Grant Admin', 'Principal Investigator (PI)', 'Grants Accountant / Project-Budget Manager', 'Grant Approver / Reviewer', 'Grants Inquiry Role', 'Project Accountant'],
+                    rows: [
+                        ['Create & maintain awards', '✔', '', '', '', '', ''],
+                        ['Create & adjust project budgets', '✔', '✔', '✔', '', '', ''],
+                        ['Submit budgets for approval', '✔', '✔', '✔', '', '', ''],
+                        ['View grant & project reports', '✔', '✔', '✔', '✔', '✔', '✔'],
+                        ['Approve budgets & amendments', '', '', '', '✔', '', ''],
+                        ['Run audit & compliance reports', '✔', '', '✔', '✔', '', '✔'],
+                        ['Manage funding sources & billing', '✔', '', '✔', '', '', ''],
+                        ['Submit grant expenses', '', '✔', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'project-accountant',
+                name: 'Project Accountant',
+                module: 'Grant Management',
+                description: 'Tasha is responsible for managing the financial integrity of projects, including budget tracking, cost collection, and compliance. With Oracle Cloud, she can now manage project transactions, run real-time reports, and ensure alignment with grant and organizational budgets—all without offline spreadsheets or manual reconciliations. Her work supports accurate billing, cost controls, and regulatory reporting.',
+                notifications: 'Receives alerts on transaction errors or missing data. May be routed approval requests for project changes or adjustments. Uses bell icon and email to track issues and escalate as needed.',
+                mobileCapabilities: 'Can view summary project info via Oracle mobile app. Mobile access limited to dashboards and approvals. Most functions are desktop-based due to complexity of cost data.',
+                workflow: [
+                    { step: 'Log In to Oracle ERP', details: ['Tasha securely accesses Oracle Fusion Cloud through a browser.', 'After logging in, she is directed to her homepage, where she selects the tools needed to manage project financials.', 'She verifies her access rights to ensure visibility into projects under her scope.'], system: 'Oracle' },
+                    { step: 'Navigate to Project Financial Management', details: ['From the Navigator, Tasha selects: Project Financial Management > Manage Project Costs, Project Control > Project Control Dashboard, Reports and Analytics > Financial Reports.', 'These modules allow her to manage project transactions, budgets, and reporting.'], system: 'Oracle' },
+                    { step: 'Review and Manage Project Costs', details: ['Search for projects by name, number, or owner', 'View cost transactions, labor/non-labor charges', 'Review unprocessed or pending transactions', 'Adjust or reclassify project charges (if applicable).'], system: 'Oracle' },
+                    { step: 'Monitor Budgets and Commitments', details: ['Compares budget to actuals at the project and task level.', 'Reviews outstanding commitments (e.g., purchase orders, unpaid invoices).', 'Identifies: Budget overruns, Unused or expired funding.', 'Works with Grant Admins or Department Staff to resolve discrepancies or update project timelines/funding.'], system: 'Oracle' },
+                    { step: 'Generate Project Billing (If Applicable)', details: ['Review billable transactions', 'Prepare customer invoices', 'Ensure correct funding source and sponsor terms.', '(Applies to billable grant and non-grant projects).'], system: 'Oracle' },
+                    { step: 'Perform Period-End Tasks', details: ['Validates and finalizes transactions:', 'Reviews costs pending GL posting', 'Prepares accrual entries for unposted items', 'Submits final transactions before close deadlines', 'Initiates project capitalization (if applicable for assets).', 'Flags projects ready for closure or transition to maintenance.'], system: 'Oracle' },
+                    { step: 'Run Project Reports', details: ['Accesses reports via: Project Accounting > Transaction Reports, Reports and Analytics > Financial Dashboards.', 'Generates: Project Summary Reports, Burn Rate Reports, Unprocessed Cost Reports.', 'Exports data to Excel or PDF for analysis or distribution to Finance/Grant teams.'], system: 'Oracle' },
+                    { step: 'Collaborate and Close Period', details: ['Partner with Grants, Finance, and PIs to ensure accuracy', 'Confirm costs are fully posted', 'Support audit trail requirements', 'Assist with closing tasks for month-end or grant-end.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Grant Admin', 'Principal Investigator (PI)', 'Grants Accountant / Project-Budget Manager', 'Grant Approver / Reviewer', 'Grants Inquiry Role', 'Project Accountant'],
+                    rows: [
+                        ['Create & maintain awards', '✔', '', '', '', '', ''],
+                        ['Create & adjust project budgets', '✔', '✔', '✔', '', '', ''],
+                        ['Submit budgets for approval', '✔', '✔', '✔', '', '', ''],
+                        ['View grant & project reports', '✔', '✔', '✔', '✔', '✔', '✔'],
+                        ['Approve budgets & amendments', '', '', '', '✔', '', ''],
+                        ['Run audit & compliance reports', '✔', '', '✔', '✔', '', '✔'],
+                        ['Manage funding sources & billing', '✔', '', '✔', '', '', ''],
+                        ['Submit grant expenses', '', '✔', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'supplier-manager',
+                name: 'Supplier Manager',
+                module: 'Procurement',
+                description: 'Jordan oversees the lifecycle of supplier profiles within the procurement system. This includes onboarding new suppliers, maintaining compliance documentation, and managing supplier status and performance for procurement efficiency and risk mitigation.',
+                notifications: 'Alerted when: Supplier site changes (e.g., new payment site), Banking detail updates pending approval, Contracted supplier performance below SLA. Approval Routing: Supplier registration and profile edits follow predefined workflow.',
+                mobileCapabilities: 'Approve supplier registration requests. Review supplier contact and profile data. Receive notifications for pending actions.',
+                workflow: [
+                    { step: 'Log in to Oracle ERP Cloud', details: ['Go to: Oracle Cloud > Procurement > Suppliers > Manage Suppliers', 'Select the appropriate Procurement Business Unit before proceeding.', 'Confirm access to supplier registration, profile management, and performance tools.'], system: 'Oracle' },
+                    { step: 'Review and Approve Supplier Registration Requests', details: ['Navigate to: Supplier Portal > Registration Requests', 'Review submitted supplier profiles: Validate tax ID, DUNS, certificates, and diversity classifications. Ensure business justification and category alignment are present. Approve, reject, or return with comments.', 'Approval routed based on supplier type, spend threshold, or risk level.'], system: 'Oracle' },
+                    { step: 'Create New Supplier Profiles (If Not Self Registered)', details: ['Navigate to: Create Supplier > Manual Entry', 'Enter supplier legal name, address, tax organization type, and country.', 'Assign Procurement BU and default payment terms.', 'Attach compliance docs (e.g., W-9, COI, ACH forms).', 'Save and route for internal review if flagged (international, high-risk, or sole-source vendors).'], system: 'Oracle' },
+                    { step: 'Maintain and Update Supplier Records', details: ['Navigate to: Manage Suppliers > Edit', 'Add or update contact information, ordering and remit-to addresses.', 'Validate all edits are properly logged and auditable.', 'Upload and version-control key documents (licenses, contracts, tax forms).', 'Initiate status updates for inactive, blocked, or do-not-use vendors.'], system: 'Oracle' },
+                    { step: 'Manage Supplier Sites', details: ['Navigate to: Supplier Sites > Create or Edit', 'Configure invoicing and purchasing sites per location.', 'Set 2-way/3-way match type, hold payments flag, and PO communication method.', 'Validate site data accuracy before enabling.', 'Assign proper category assignments for strategic sourcing alignment.'], system: 'Oracle' },
+                    { step: 'Monitor Supplier Performance & Compliance', details: ['Navigate to: Supplier Performance > Scorecards or Qualifications', 'Review supplier delivery metrics, quality scores, and incident history.', 'Document violations or underperformance.', 'Share findings with Procurement Manager and Category Manager for sourcing decisions.'], system: 'Oracle' },
+                    { step: 'Approve Operational Changes from Supplier Admin', details: ['Review changes initiated by Supplier Admin: Banking details, Tax registration edits, Site or contact modifications. Approve or escalate as needed.', 'Segregation of duties is maintained between Admin and Manager roles.'], system: 'Oracle' },
+                    { step: 'Inactivate or Flag Non-Compliant Suppliers', details: ['Navigate to: Manage Suppliers > Status', 'Set supplier to “Inactive” or “Do Not Use” when: They fail to meet compliance standards, Delivery issues persist, They are no longer under contract.', 'Provide reason and retain documentation for audit trail.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Supplier Manager', 'Supplier Admin', 'Procurement Manager', 'Advance Procurement Requester', 'Category Manager', 'Procurement Catalog Administrator'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '✔', '✔', '', '', '', ''],
+                        ['Approve Supplier Registrations', '✔', '', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '✔', '✔', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '✔', '✔', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '✔', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', '✔', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', '✔', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', '✔', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '✔', '✔', '']
+                    ]
+                }
+            },
+            {
+                id: 'supplier-admin',
+                name: 'Supplier Admin',
+                module: 'Procurement',
+                description: 'April, the Supplier Admin, is responsible for the operational upkeep of supplier records. She ensures all supplier data—banking, addresses, site configurations, and compliance documents—is accurate, up-to-date, and aligned with internal policies. While she doesn\'t approve suppliers, her role is critical in enabling transaction readiness and supporting audits.',
+                notifications: 'Alerted when: Banking details are added or updated, Sensitive fields (TIN, BU roles) are modified. Approvals: Routed to Supplier Manager or Controller. Reminders: Sent for expired documents and incomplete profiles.',
+                mobileCapabilities: 'Limited support for record updates. Mobile access suitable for viewing supplier profiles and approving changes. Not recommended for heavy data entry or site setup.',
+                workflow: [
+                    { step: 'Log in to Oracle ERP Cloud', details: ['April accesses Oracle Cloud securely using SSO or credentials via browser.', 'Navigation Path: Oracle Homepage > Procurement > Suppliers > Manage Suppliers.', 'She selects the correct Business Unit and search criteria to locate the supplier record.'], system: 'Oracle' },
+                    { step: 'Maintain Supplier Contact and Site Information', details: ['Open supplier record and navigate to the Addresses and Contacts tabs.', 'Add, edit, or deactivate supplier contacts (e.g., AP contact, sales rep).', 'Set up address details and assign addresses to operating units.', 'Review tax and regulatory fields, ensure completeness (e.g., DUNS number, country-specific compliance).', 'Instructions: Validate that address formats match regional standards and legal requirements.'], system: 'Oracle' },
+                    { step: 'Configure and Validate Banking and Payment Details', details: ['Navigate to Bank Accounts > Create Bank Account', 'Enter bank account number, routing number, account type, and account holder name.', 'Assign the account to the appropriate site(s) and payment purpose (ACH, wire).', 'Trigger: High-risk banking changes will initiate an approval workflow to the Supplier Manager or Controller.', 'Audit Tip: Always upload a voided check or bank letter as attachment for verification.'], system: 'Oracle' },
+                    { step: 'Upload and Manage Compliance and Tax Documentation', details: ['Go to Attachments tab > Upload tax forms (e.g., W-9, W-8BEN, TIN verification letter).', 'Label each file clearly (e.g., “W9 – ABC Corp – Exp 12/31/26”).', 'Set document expiration dates and compliance flags.', 'Reminder: Set follow-up tasks or calendar reminders for expiring documents.'], system: 'Oracle' },
+                    { step: 'Assign Business Units and Procurement Roles', details: ['In the Business Classification and BU Assignment tabs: Assign supplier to Invoicing and Procurement Business Units. Designate whether supplier can accept Purchase Orders, invoices, or both. Set default payment terms, tax defaults, and currency codes.'], system: 'Oracle' },
+                    { step: 'Create and Manage Supplier Sites', details: ['Navigate to Sites tab > Create new or edit existing sites.', 'For each site, enter: Site name, site purpose (Invoicing, Purchasing). Ship-To and Bill-To addresses. Payment terms and tax registration. Designate the primary site for procurement if multiple exist. Flag inactive sites when supplier relationship ends or changes.'], system: 'Oracle' },
+                    { step: 'Submit Changes for Review and Approvals', details: ['Trigger Points: Banking details, TIN updates, BU assignment changes. System routes approval requests based on workflow configuration. Use Comments section to explain why the change is needed. Upload backup documentation (e.g., updated tax forms, revised agreement). Notifications: Supplier Manager or designated reviewer receives email or Oracle Worklist alert.'], system: 'Oracle' },
+                    { step: 'Support Audits and Maintain Supplier Data accuracy', details: ['Run audit queries from Reports and Analytics > Supplier Audit Report.', 'Export supplier master changes to Excel for internal review.', 'Identify and clean duplicate or inactive supplier records.', 'Schedule quarterly supplier file reviews with Procurement or Finance.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Supplier Manager', 'Supplier Admin', 'Procurement Manager', 'Advance Procurement Requester', 'Category Manager', 'Procurement Catalog Administrator'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '✔', '✔', '', '', '', ''],
+                        ['Approve Supplier Registrations', '✔', '', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '✔', '✔', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '✔', '✔', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '✔', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', '✔', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', '✔', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', '✔', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '✔', '✔', '']
+                    ]
+                }
+            },
+            {
+                id: 'procurement-manager',
+                name: 'Procurement Manager',
+                module: 'Procurement',
+                description: 'Jordan, the Procurement Manager, oversees the end-to-end purchase process in Oracle ERP. His responsibilities include reviewing requisitions, managing purchase orders (POs), ensuring supplier compliance, and handling exceptions. He serves as the control point between the requester, approver, and supplier to ensure procurement aligns with budget and policy.',
+                notifications: 'Alerted when: Requisitions exceeding threshold, Change orders requiring re-approval, PO mismatches or supplier acceptance delays. Routing: Configured by approval matrix based on cost center, spend limit, and department head.',
+                mobileCapabilities: 'Approve requisitions and POs on the go. View PO status and alerts via Oracle mobile app. Cannot create or modify detailed PO records on mobile. Push alerts for urgent requisitions or supplier change requests.',
+                workflow: [
+                    { step: 'Log in to Oracle ERP Cloud', details: ['Jordan securely accesses Oracle Cloud via browser or mobile SSO credentials.', 'Navigation Path: Procurement > Purchase Requisitions, Procurement > Purchase Orders > Manage Orders, Procurement > Procurement Workbench.'], system: 'Oracle' },
+                    { step: 'Review and Approve Requisitions', details: ['Go to Approvals > Requisitions Worklist.', 'Open pending requisition.', 'Review item details, justification, supplier match, and attachment compliance.', 'Approve or reject with comments (e.g., request clarification or updated quote).', 'Notifications: Email and Bell alerts for requisitions pending review.', 'Approval Hierarchy: Based on department, cost center, and dollar threshold.'], system: 'Oracle' },
+                    { step: 'Create and Manage Purchase Orders (POs)', details: ['Navigate to Manage Orders > Create PO.', 'Select the approved requisition or create direct PO.', 'Assign supplier, item description, quantity, pricing, and project/task info.', 'Submit for approval or automatically generate if within threshold.', 'Use PO Communication to send to supplier via portal or email.'], system: 'Oracle' },
+                    { step: 'Monitor PO Lifecycle and Status', details: ['Use the Purchase Order Status Dashboard.', 'Track PO through statuses: Open, In Process, Pending Supplier Acceptance, Closed.', 'Review change history and audit trail.', 'Address exceptions like supplier non-response, incorrect pricing, or item changes.'], system: 'Oracle' },
+                    { step: 'Handle Exceptions and PO Changes', details: ['Access Change Orders tab in the PO.', 'Modify pricing, quantity, or delivery schedule.', 'Add change justification note.', 'Trigger re-approval if changes exceed defined policy.', 'System auto-generates version history for audit.'], system: 'Oracle' },
+                    { step: 'Ensure Contract Compliance', details: ['Navigate to Contracts > Link Contract tab within PO.', 'Validate PO is tied to an approved sourcing or supplier agreement.', 'Run Contract Usage report monthly.', 'Flag out-of-contract spend and initiate sourcing action if required.'], system: 'Oracle' },
+                    { step: 'Collaborate with Stakeholders', details: ['Send comments to requester or AP team for PO clarification.', 'Notify requesters of rejected items and next steps.', 'Meet weekly with Category Managers for contract/vendor updates.', 'Share compliance and PO status reports with leadership.'], system: 'Oracle' },
+                    { step: 'Approve Invoices or Match Exceptions (if enabled)', details: ['Navigate to: Invoices > Manage Invoices > Approval Worklist.', 'Review invoice matching results (2-way/3-way match).', 'Approve exception-based invoices or send back for correction.', 'Monitor payments to ensure supplier timelines are met.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Supplier Manager', 'Supplier Admin', 'Procurement Manager', 'Advance Procurement Requester', 'Category Manager', 'Procurement Catalog Administrator'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '✔', '✔', '', '', '', ''],
+                        ['Approve Supplier Registrations', '✔', '', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '✔', '✔', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '✔', '✔', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '✔', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', '✔', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', '✔', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', '✔', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '✔', '✔', '']
+                    ]
+                }
+            },
+            {
+                id: 'advance-requester',
+                name: 'Advance Procurement Requester',
+                module: 'Procurement',
+                description: 'Taylor, an experienced Advance Procurement Requester, is responsible for submitting detailed requisitions for goods or services needed by their department. Taylor ensures requests are accurate, include necessary attachments (quotes/specs), and align with budgeting guidelines. Their role kickstarts the procurement process by initiating demand and tracking it through fulfillment.',
+                notifications: 'Alerted when: Approval/rejection of requisition, PO creation notice, Request for changes or additional documentation. Approval Routing: Based on cost category, business unit, and funding source.',
+                mobileCapabilities: 'Create and submit basic requisitions. Upload attachments using mobile device. Receive goods by scanning barcode or entering PO. Push notifications for status updates and approvals.',
+                workflow: [
+                    { step: 'Log in to Oracle ERP Cloud', details: ['Taylor logs in securely using single sign-on via web browser or Oracle mobile app.', 'Navigation Path: Procurement > Purchase Requisitions, Procurement > Requisition Worklist.'], system: 'Oracle' },
+                    { step: 'Create a Purchase Requisition', details: ['Click Create Requisition.', 'Enter item name, quantity, and select category from catalog or free text.', 'Choose preferred supplier if applicable.', 'Add delivery location and request date.', 'Attachments: Upload quotes, specifications, or supporting documents.', 'Add Financial Information: Assign charge account: cost center, project, or grant. Validate budget availability (auto-check enabled). Route to proper approver based on cost and category.'], system: 'Oracle' },
+                    { step: 'Submit for Approval', details: ['Review requisition summary.', 'Submit request to approval workflow.', 'View real-time status in Manage Requisitions.', 'Notifications: Email/Bell alerts when requisition is approved, rejected, or returned for edits.', 'Approvals: Routed automatically based on dollar threshold and department matrix.'], system: 'Oracle' },
+                    { step: 'Track Requisition to Purchase Order (PO)', details: ['Monitor progression in Procurement Workbench.', 'Confirm that PO is generated by buyer or procurement team.', 'Get notified once PO is sent to supplier.', 'Escalate delays to Procurement Manager if needed.'], system: 'Oracle' },
+                    { step: 'Receive Goods or Services (if assigned receiver)', details: ['Navigate to Receiving > Receive Items.', 'Confirm receipt by PO number.', 'Enter quantities received, condition, and attach delivery receipt or packing slip.', 'System auto-triggers matching for invoice processing.'], system: 'Oracle' },
+                    { step: 'Collaborate with Procurement and Finance', details: ['Respond to clarification requests from approvers or buyers.', 'Notify Procurement Manager if requested item has a pricing or contract issue.', 'Confirm delivery or resolve partial receipt situations.'], system: 'Oracle' },
+                    { step: 'Close the Loop', details: ['Validate final receipt and that invoice is processed.', 'Review completed requisitions in the Procurement Dashboard.', 'Save frequently ordered items or templates for future requests.', 'Gather feedback from requesters on process efficiency.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Supplier Manager', 'Supplier Admin', 'Procurement Manager', 'Advance Procurement Requester', 'Category Manager', 'Procurement Catalog Administrator'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '✔', '✔', '', '', '', ''],
+                        ['Approve Supplier Registrations', '✔', '', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '✔', '✔', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '✔', '✔', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '✔', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', '✔', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', '✔', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', '✔', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '✔', '✔', '']
+                    ]
+                }
+            },
+            {
+                id: 'category-manager',
+                name: 'Category Manager',
+                module: 'Procurement',
+                description: 'Maya is responsible for optimizing sourcing strategies across specific spend categories such as IT, Facilities, or Professional Services. She leverages Oracle Procurement Cloud to define item groups, manage sourcing events, award contracts, and monitor compliance. Maya’s role is both strategic and operational, driving cost savings while ensuring that vendors deliver value, quality, and compliance across departments.',
+                notifications: 'Alerts for sourcing deadlines, contract expirations, vendor performance issues. Approval routing for sourcing awards and category changes.',
+                mobileCapabilities: 'Review sourcing events. Score supplier responses. View supplier performance summaries.',
+                workflow: [
+                    { step: 'Log into Oracle Procurement Cloud', details: ['Maya logs in securely through the Oracle Cloud homepage using her credentials.', 'Navigates to: Procurement > Negotiations > Manage Negotiations, Procurement > Spend Classification, Procurement > Procurement Contracts.'], system: 'Oracle' },
+                    { step: 'Define and Maintain Spend Categories', details: ['Go to “Manage Categories> Select or create a new category', 'Define rules for vendor eligibility usage thresholds, and preferred supplier', 'Maya reviews and updates the organizational category hierarchy.', 'Assigns item types, vendor eligibility rules, and associated Procurement Business Units (BUs).', 'Defines spend limits, compliance requirements, and category-specific workflow routing rules.', 'Coordinates with the Procurement Catalog Administrator to align contract items with the correct categories.'], system: 'Oracle' },
+                    { step: 'Launch Sourcing Events (RFI, RFP, RFQ)', details: ['Navigate to “Manage Negotiations”', 'Click “Create”', 'Define scope, attach documents, and configure scoring methodology', 'Invite suppliers via Oracle or manually upload contacts', 'Initiates sourcing events for upcoming contracts or renewals.', 'Selects negotiation type (e.g., sealed bid, ranked response, auction).', 'Uploads supporting specs, scoring rubrics, and supplier questionnaires.', 'Invites approved suppliers linked to that category.'], system: 'Oracle' },
+                    { step: 'Monitor Supplier Responses and Participation', details: ['Tracks submission deadlines, participation rates, and question logs.', 'Uses Oracle’s side-by-side bid comparison tools to evaluate proposals based on price, delivery, and terms.', 'Works with stakeholders to provide evaluation feedback or suggest clarification rounds with vendors.'], system: 'Oracle' },
+                    { step: 'Award Sourcing Events and Create Agreements', details: ['Maya finalizes awards and converts winning supplier responses into Purchase Agreements.', 'Defines contract terms, pricing schedules, and service levels in Oracle Contracts.', 'Routes agreements for internal approvals and initiates supplier notification workflows.', 'Click “Award Negotiation” > Select winner(s)', 'Navigate to “Procurement Contracts” > Create Contract', 'Define scope, attach negotiation history, and submit for approval.'], system: 'Oracle' },
+                    { step: 'Monitor Contract and Category Compliance', details: ['Runs reports to check for maverick spend and off contract purchases.', 'Tracks usage against contracted thresholds and flags underutilized or non-compliant vendors.', 'Collaborates with Procurement Manager and Finance to course-correct where needed.'], system: 'Oracle' },
+                    { step: 'Evaluate Vendor and Category Performance', details: ['Maya reviews vendor scorecards and delivery metrics.', 'Conducts quarterly reviews and prepares dashboards for leadership.', 'Recommends vendor consolidation or re-sourcing events based on category performance data.', 'Instructions: Navigate to “Supplier Performance Evaluation”, Filter by category, Export reports or build custom views using BI Publisher.'], system: 'Oracle' },
+                    { step: 'Optimize Category Strategy', details: ['Performs strategic analysis to identify cost-saving opportunities or sourcing risks.', 'Maps upcoming contract expirations and market shifts.', 'Leads cross-functional meetings with internal stakeholders to evolve the category strategy.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Supplier Manager', 'Supplier Admin', 'Procurement Manager', 'Advance Procurement Requester', 'Category Manager', 'Procurement Catalog Administrator'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '✔', '✔', '', '', '', ''],
+                        ['Approve Supplier Registrations', '✔', '', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '✔', '✔', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '✔', '✔', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '✔', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', '✔', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', '✔', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', '✔', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '✔', '✔', '']
+                    ]
+                }
+            },
+            {
+                id: 'catalog-admin',
+                name: 'Procurement Catalog Administrator',
+                module: 'Procurement',
+                description: 'Jordan ensures the organization’s procurement catalog is accurate, up-to-date, and aligned with contracts. He collaborates closely with Category Managers and Buyers to keep catalog content clean, searchable, and compliant with pricing agreements. Jordan’s role directly impacts the end-user experience—reducing maverick spend and enabling fast, accurate requisitions.',
+                notifications: 'Alerts for catalog inconsistencies, contract misalignment, or missing pricing. Approvals required for contract-linked changes or cross-BU catalog edits.',
+                mobileCapabilities: 'View catalog content and history. Not ideal for bulk entry or configuration changes.',
+                workflow: [
+                    { step: 'Log into Oracle Procurement Cloud', details: ['Jordan logs into Oracle using his secure credentials.', 'Navigates to: Procurement > Product Management > Manage Catalogs, Procurement > Procurement Content Zone Management.'], system: 'Oracle' },
+                    { step: 'Maintain Catalog Content', details: ['Adds new catalog items individually or via bulk upload (spreadsheet).', 'Inputs item descriptions, categories, pricing, supplier info, and images.', 'Flags discontinued or obsolete items and provides replacements where possible.', 'Go to “Manage Catalogs”', 'Click “Create or Edit Catalog”', 'Add items using “Add Line” or “Upload Spreadsheet”', 'Populate item attributes: name, unit price, category, supplier, and expiration date.'], system: 'Oracle' },
+                    { step: 'Link Catalog Items to Contracts', details: ['Ensures catalog content reflects agreed pricing and terms from awarded contracts.', 'Coordinates with Category Manager to review and upload contract-backed item details.', 'Tags contract number and supplier site to each item to ensure automated compliance checks.'], system: 'Oracle' },
+                    { step: 'Publish and Activate Catalogs', details: ['Activates content zones to control catalog visibility by department, location, or business unit.', 'Sets catalog availability windows for temporary or seasonal items.', 'Triggers system validation checks for duplicates or missing fields.', 'Navigate to >Manage Content Zones>', 'Define which catalog is available to which Business Units', 'Validate and publish the catalog for use in requisitions.'], system: 'Oracle' },
+                    { step: 'Audit Catalog Accuracy', details: ['Runs catalog audit reports to identify discrepancies in pricing, supplier site setup, and classification.', 'Corrects items that are inactive, out-of-date, or incorrectly mapped to categories.', 'Schedules quarterly audits or triggers a review after major contract changes.'], system: 'Oracle' },
+                    { step: 'Collaborate with Stakeholders', details: ['Works with Category Managers to review upcoming expirations and additions.', 'Coordinates with Procurement Requesters and end users to resolve catalog-related issues (e.g., item not found, wrong price).', 'Supports Procurement Managers during audits or compliance reviews.'], system: 'Oracle' },
+                    { step: 'Respond to Notifications and Approvals', details: ['Receives alerts when: New contracts are awarded and need to be added to catalog, Items are flagged as duplicated or unmatched. Routes high-risk changes (e.g., pricing or supplier site edits) to the Procurement Manager for approval.', 'Instructions: Monitor Notification Bell and Worklist for system tasks, Approve low-risk changes, route high-risk edits via Workflow Configuration.'], system: 'Oracle' },
+                    { step: 'Improve Search and User Experience', details: ['Tags catalog items with keywords, part numbers, and categories to improve searchability.', 'Configures punchout catalogs or hosted catalogs for frequently purchased items.', 'Reviews user feedback and updates descriptions, images, or metadata to align with expectations.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Supplier Manager', 'Supplier Admin', 'Procurement Manager', 'Advance Procurement Requester', 'Category Manager', 'Procurement Catalog Administrator'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '✔', '✔', '', '', '', ''],
+                        ['Approve Supplier Registrations', '✔', '', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '✔', '✔', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '✔', '✔', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '✔', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '✔', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', '✔', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', '✔', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', '✔', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '✔', '✔', '']
+                    ]
+                }
+            },
+            {
+                id: 'product-data-steward',
+                name: 'Product Data Steward',
+                module: 'Supply Chain Management',
+                description: 'Tina is responsible for maintaining accurate product master data across Oracle SCM. Her role ensures that all downstream supply chain transactions—procurement, inventory, costing—are based on clean, standardized product records.',
+                notifications: 'Receives alerts on transaction errors or missing data. May be routed approval requests for project changes or adjustments. Uses bell icon and email to track issues and escalate as needed.',
+                mobileCapabilities: 'Can view summary project info via Oracle mobile app. Mobile access limited to dashboards and approvals. Most functions are desktop-based due to complexity of cost data.',
+                workflow: [
+                    { step: 'Log In to Oracle Cloud', details: ['Lena logs in through the secure Oracle Fusion Applications portal.', 'Lands on the Home page > navigates to Product Information Management.'], system: 'Oracle' },
+                    { step: 'Create or Update Product Records', details: ['Navigate to: Product Development > Manage Items', 'Click Create Item to start a new product or Search to update an existing item.', 'Populate required fields: Item Description, Item Class, Primary UOM, Lifecycle Phase, Status.', 'Attach relevant files like specification sheets or images using the Attachments tab.', 'Save the item in draft status for further validation.'], system: 'Oracle' },
+                    { step: 'Assign Item to Inventory Organizations', details: ['Navigate to Item Organizations tab within the item record.', 'Add the item to one or more inventory organizations.', 'Validate: Warehouse visibility, Tracking control, Lot/serial control (if applicable).', 'This ensures the item is usable in transactions (purchasing, receiving, etc.).'], system: 'Oracle' },
+                    { step: 'Set Product Structures', details: ['Navigate to: Product Development > Manage Product Structures', 'Define components and subassemblies for BOM items.', 'For configured items, manage options and rules in the Configurator.', 'Use Structure Templates to ensure uniformity.', 'Mobile Tip: Structure visibility is read-only on mobile, but useful for warehouse review.'], system: 'Oracle' },
+                    { step: 'Set Up Catalogs and Categories', details: ['Go to Product Information Management > Manage Catalogs', 'Define catalog names, usage (Procurement, Inventory), and category hierarchies.', 'Assign your item to relevant categories based on: Product type, Purchasing family, Reporting needs.'], system: 'Oracle' },
+                    { step: 'Validate and Route for Approval', details: ['Run validations to check for: Mandatory attributes missing, Duplicates, UOM mismatches.', 'If workflow is enabled, click Submit for Approval.', 'Notifications are sent to approvers (e.g., compliance team, planning manager).', 'Monitor status in Workflow History tab.'], system: 'Oracle' },
+                    { step: 'Use Change Orders to Modify Items', details: ['If item is in a controlled lifecycle phase (e.g., Production), changes must go through a Change Order.', 'Navigate to: Change Orders > Create Change Order', 'Add affected item(s), update details, and submit through workflow.', 'Track version history and status.', 'Approvals: Automatically routed based on configuration (e.g., Category Manager, Quality).'], system: 'Oracle' },
+                    { step: 'Confirm Downstream Visibility & Operational Readiness', details: ['Check item presence in other modules: Purchasing (can it be ordered?), Inventory (can it be stocked?), Costing (is cost info assigned?).', 'Use Item Availability or Item Supply/Demand Inquiry reports to validate readiness.', 'Resolve visibility gaps before go-live.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Product Data Steward', 'Inventory Manager', 'Warehouse Manager', 'Cost Accountant'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '', '', '', ''],
+                        ['Approve Supplier Registrations', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'inventory-manager',
+                name: 'Inventory Manager',
+                module: 'Supply Chain Management',
+                description: 'Isaac is responsible for overseeing inventory operations across multiple warehouses. His role includes monitoring item availability, managing stock levels, performing inventory transactions, and supporting cycle counts to maintain accuracy in Oracle Cloud. He uses Oracle Inventory Management Cloud to streamline operations, respond to stock discrepancies, and ensure alignment with supply and demand.',
+                notifications: 'Alerted when: Low stock levels, Cycle count tasks assigned, Warnings on pending/unposted transactions, Approval for high-value adjustments, Exception-based alerts for out-of-policy transactions.',
+                mobileCapabilities: 'Perform barcode scanning for counts and transfers. Review on-hand quantities and item information. Enter inventory transactions in real time during warehouse operations.',
+                workflow: [
+                    { step: 'Log in to Oracle ERP Cloud', details: ['Isaac logs into the Oracle Cloud system using secure credentials. From the Oracle Fusion homepage, he accesses the Supply Chain Execution work area.'], system: 'Oracle' },
+                    { step: 'Navigate to Inventory Management', details: ['From the Navigator menu, Isaac selects: Inventory Management > Inventory, Inventory Management > Inventory Transactions.'], system: 'Oracle' },
+                    { step: 'Monitor Item Availability', details: ['Isaac uses the "Manage Item Quantities" page to: Search by item, sub inventory, or locator. View on-hand quantity, reservations, and available-to-promise (ATP). Identify low stock or excess items.'], system: 'Oracle' },
+                    { step: 'Perform Inventory Transactions', details: ['Using the “Create Miscellaneous Transaction” and “Manage Inventory Transactions” tools, Isaac can: Execute transfers between sub inventories or locators. Adjust inventory due to damage, shrinkage, or cycle count. Record inventory receipts and issues.'], system: 'Oracle' },
+                    { step: 'Manage Inventory Reservations', details: ['Isaac uses the Manage Reservations and Picks functionality to: Reserve items for specific sales or work orders. Track allocations and fulfillment status. Modify or release reservations based on supply availability.'], system: 'Oracle' },
+                    { step: 'Execute Cycle Counts and Physical Counts', details: ['Isaac initiates and processes cycle counts by: Setting up schedules or ad-hoc counts. Assigning counting tasks to staff. Reviewing count results and approving variances.'], system: 'Oracle' },
+                    { step: 'Review Inventory Valuation Reports', details: ['From Reports and Analytics or the Inventory Valuation Dashboard, Isaac: Reviews item cost valuation by sub inventory. Analyzes value of inventory on hand. Identifies inventory shrinkage or obsolescence trends.'], system: 'Oracle' },
+                    { step: 'Support Month-End Close Activities', details: ['Isaac collaborates with the Cost Accountant and Warehouse Manager to: Ensure all transactions are posted. Confirm open transactions are resolved. Provide final on-hand balances for reporting.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Product Data Steward', 'Inventory Manager', 'Warehouse Manager', 'Cost Accountant'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '', '', '', ''],
+                        ['Approve Supplier Registrations', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'warehouse-manager',
+                name: 'Warehouse Manager',
+                module: 'Supply Chain Management',
+                description: 'Lee oversees the day-to-day execution of physical goods movement, ensuring inventory is received, stored, transferred, and shipped correctly. He uses Oracle Cloud SCM to manage warehouse logistics, maintain accurate stock levels, and ensure compliance with internal controls.',
+                notifications: 'Alerted when: Delayed receipts or shipments, High-value or out-of-tolerance inventory adjustments, Unposted transactions, Cycle count due notifications.',
+                mobileCapabilities: 'Can view summary project info via Oracle mobile app. Mobile access limited to dashboards and approvals. Most functions are desktop-based due to complexity of cost data.',
+                workflow: [
+                    { step: 'Log in to Oracle Cloud SCM', details: ['Use secure credentials via desktop or mobile.', 'Navigate to the Supply Chain Execution homepage.', 'Confirm access to Inventory Management, Receiving, and Shipping.'], system: 'Oracle' },
+                    { step: 'Navigate to Warehouse Operations', details: ['From Navigator: Go to Supply Chain Execution > Inventory Management or Warehouse Operations.', 'Select appropriate submodules (e.g., Manage Shipments, Manage Transfers, Receiving Transactions).'], system: 'Oracle' },
+                    { step: 'Receive and Inspect Inbound Goods', details: ['Access Manage Receipts.', 'Match incoming goods against open Purchase Orders (POs).', 'Actions: Record item condition (damaged, partial, complete). Confirm received quantity. Assign correct sub inventory or locator for storage.', 'System automatically updates on-hand quantity.'], system: 'Oracle' },
+                    { step: 'Perform Inventory Transfers', details: ['Use Manage Transfers to: Move items between sub inventories or locations. Track transfer order number, quantity, and reason. Confirm destination sub inventory. Required if warehouse supports multiple storage locations or departments.'], system: 'Oracle' },
+                    { step: 'Execute Picking and Shipping', details: ['Go to Manage Pick Waves: Initiate pick tasks based on sales or internal transfer orders. Assign pick tasks to warehouse staff. Confirm pick completion and stage items for shipping. Use Ship Confirm to finalize shipment, generate shipment documents.'], system: 'Oracle' },
+                    { step: 'Conduct Cycle Counting', details: ['Navigate to Cycle Counts > Manage Scheduled Counts: View and acknowledge assigned counts. Perform physical count, enter actual quantity. Submit results for system reconciliation. Review count discrepancies and generate adjustment reports.'], system: 'Oracle' },
+                    { step: 'Monitor Inventory Exceptions', details: ['Use Inventory Analysis Dashboard to track: Pending/unposted transactions. Stock-out warnings and low stock alerts. Past-due receipts or pick slips. Take immediate corrective action as needed.'], system: 'Oracle' },
+                    { step: 'Support Month-End Inventory Close', details: ['Validate all transactions are posted.', 'Clear any pending inter-org transfers or receipt discrepancies.', 'Lock the warehouse for physical count if needed.', 'Confirm alignment with Finance for GL reconciliation.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Product Data Steward', 'Inventory Manager', 'Warehouse Manager', 'Cost Accountant'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '', '', '', ''],
+                        ['Approve Supplier Registrations', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '']
+                    ]
+                }
+            },
+            {
+                id: 'cost-accountant',
+                name: 'Cost Accountant',
+                module: 'Supply Chain Management',
+                description: 'Nina ensures all inventory-related financial transactions are accurately costed, validated, and posted to the general ledger. She owns the cost configuration, analysis of variances, and reconciliation between inventory subledger and accounting. She plays a critical role during period-end and year-end close processes.',
+                notifications: 'Alerted when: Missing or incorrect cost data. Failed distributions or GL transfers. Large or out-of-policy cost adjustments requiring approval. Workflow for review and sign-off before GL posting.',
+                mobileCapabilities: 'Cost functions are primarily desktop-based. Mobile notifications support approval workflows and cost review alerts.',
+                workflow: [
+                    { step: 'Log in to Oracle ERP Cloud', details: ['Use secure browser access.', 'Navigate to the Cost Accounting Work Area.', 'Confirm tiles for Review Item Costs, Manage Cost Distributions, Submit Accounting are available.'], system: 'Oracle' },
+                    { step: 'Set Up & Maintain Cost Structures', details: ['From Manage Cost Organization Relationships: Assign cost books to inventory orgs. Define cost elements: material, labor, overhead, etc. Configure cost profiles (standard, actual, or average). Ensure cost account mappings are correctly defined for inventory and WIP.'], system: 'Oracle' },
+                    { step: 'Process Cost Accounting Distributions', details: ['Go to Create Cost Accounting Distributions.', 'Select: Cost Organization, Ledger, Time Period (e.g., monthly).', 'System generates cost distributions from inventory and manufacturing transactions.', 'Review and resolve any unprocessed or error transactions.'], system: 'Oracle' },
+                    { step: 'Review Cost Transactions', details: ['Navigate to Review Cost Accounting Distributions: Review item-level transaction details. Filter by item, date, cost element, or cost type. Identify anomalies like duplicate or missing costs.'], system: 'Oracle' },
+                    { step: 'Analyze Variances', details: ['Generate Cost Variance Reports: Usage variance, Rate variance, Yield variance (if using standard costing).', 'Use Inventory Valuation Reports to: Validate inventory balances, Compare book vs actual costs.'], system: 'Oracle' },
+                    { step: 'Perform Adjustments', details: ['Enter cost adjustments if needed (e.g., write-offs, reclassifications).', 'Submit batch adjustments through Manage Item Costs.', 'Apply overhead manually or automate through cost policies.'], system: 'Oracle' },
+                    { step: 'Transfer Costs to General Ledger', details: ['Run Transfer to General Ledger process: Select batch or time period. Confirm correct journals are generated. Validate journal balances and fix errors prior to posting. Use Review Cost Accounting Journal Entries for audit trail.'], system: 'Oracle' },
+                    { step: 'Support Period-End and Year-End Close', details: ['Lock inventory periods after reconciliation.', 'Freeze standard costs before new fiscal year.', 'Archive cost snapshots.', 'Reconcile cost subledger with inventory valuation and GL.'], system: 'Oracle' }
+                ],
+                accessMatrix: {
+                    headers: ['Activity', 'Product Data Steward', 'Inventory Manager', 'Warehouse Manager', 'Cost Accountant'],
+                    rows: [
+                        ['Create & Maintain Supplier Profiles', '', '', '', ''],
+                        ['Approve Supplier Registrations', '', '', '', ''],
+                        ['Manage Supplier Sites, Contacts & Banking', '', '', '', ''],
+                        ['Initiate Purchase Requisitions', '', '', '', ''],
+                        ['Convert Requisitions to Purchase Orders', '', '', '', ''],
+                        ['Manage Purchase Orders', '', '', '', ''],
+                        ['Communicate PO to Suppliers', '', '', '', ''],
+                        ['View and Acknowledge Purchase Orders', '', '', '', ''],
+                        ['Submit Invoices via Supplier Portal', '', '', '', ''],
+                        ['View Invoice and Payment Status', '', '', '', ''],
+                        ['Respond to RFQs / Negotiations', '', '', '', '']
+                    ]
+                }
+            }
+        ];
+
+        const moduleColors = {
+            'Accounts Payable': '#003f5c',
+            'Accounts Receivable': '#7a5195',
+            'General Accounting': '#ef5675',
+            'Fixed Assets': '#ffa600',
+            'Cash Management': '#58508d',
+            'Budget': '#bc5090',
+            'Grant Management': '#ff6361',
+            'Procurement': '#a05195',
+            'Supply Chain Management': '#d45087'
+        };
+
+        const wrapText = (str) => {
+            if (typeof str !== 'string' || str.length <= 16) return str;
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).length > 16 && currentLine !== '') {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine += ' ' + word;
+                }
+            });
+            lines.push(currentLine.trim());
+            return lines;
+        };
+
+        const tooltipCallback = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) { return label.join(' '); }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
+
+        function renderRolesByModuleChart() {
+            const moduleCounts = {};
+            rolesData.forEach(role => {
+                moduleCounts[role.module] = (moduleCounts[role.module] || 0) + 1;
+            });
+
+            const labels = Object.keys(moduleCounts).map(wrapText);
+            const data = Object.values(moduleCounts);
+            const backgroundColors = Object.keys(moduleCounts).map(module => moduleColors[module] || '#cccccc');
+
+            new Chart(document.getElementById('rolesByModuleChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Roles',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    ...tooltipCallback
+                }
+            });
+        }
+
+        function renderRoleCards() {
+            const grid = document.getElementById('role-selection-grid');
+            grid.innerHTML = '';
+            rolesData.forEach(role => {
+                const card = document.createElement('div');
+                card.id = `role-card-${role.id}`;
+                card.className = 'role-card card p-4 text-center hover:bg-blue-50 transition-all duration-200';
+                card.innerHTML = `
+                    <h3 class="text-lg font-bold text-[#003f5c] mb-1">${role.name}</h3>
+                    <p class="text-sm text-gray-600">${role.module}</p>
+                `;
+                card.addEventListener('click', () => selectRole(role.id));
+                grid.appendChild(card);
+            });
+        }
+
+        function selectRole(roleId) {
+            const selectedRole = rolesData.find(role => role.id === roleId);
+            if (!selectedRole) return;
+
+            document.querySelectorAll('.role-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById(`role-card-${roleId}`).classList.add('selected');
+
+            document.getElementById('selected-role-name').textContent = selectedRole.name;
+            document.getElementById('selected-role-description').textContent = selectedRole.description;
+            document.getElementById('role-notifications').textContent = selectedRole.notifications;
+            document.getElementById('role-mobile-capabilities').textContent = selectedRole.mobileCapabilities;
+
+            renderWorkflowSteps(selectedRole.workflow);
+            renderAccessMatrix(selectedRole.accessMatrix);
+
+            document.getElementById('role-details-section').classList.remove('hidden');
+            document.getElementById('role-details-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderWorkflowSteps(workflow) {
+            const container = document.getElementById('workflow-steps-container');
+            container.innerHTML = '';
+            workflow.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'workflow-step w-full card flex flex-col items-start text-left';
+                stepDiv.setAttribute('data-step-number', index + 1);
+
+                const stepHeader = document.createElement('div');
+                stepHeader.className = 'flex items-center mb-2';
+                stepHeader.innerHTML = `
+                    <h4 class="text-base font-semibold text-[#003f5c]">${step.step}</h4>
+                    <span class="system-indicator ${step.system === 'Oracle' ? 'system-oracle' : 'system-tyler'} ml-2">
+                        ${step.system}
+                    </span>
+                `;
+                stepDiv.appendChild(stepHeader);
+
+                if (step.details && step.details.length > 0) {
+                    const detailsList = document.createElement('ul');
+                    detailsList.className = 'list-none p-0 m-0';
+                    step.details.forEach(detail => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'workflow-sub-step';
+                        listItem.textContent = detail;
+                        detailsList.appendChild(listItem);
+                    });
+                    stepDiv.appendChild(detailsList);
+                }
+                container.appendChild(stepDiv);
+            });
+        }
+
+        function renderAccessMatrix(accessMatrix) {
+            const matrixContainer = document.getElementById('access-matrix-container');
+            const headerRow = document.getElementById('access-matrix-header');
+            const body = document.getElementById('access-matrix-body');
+
+            if (!accessMatrix || !accessMatrix.headers || accessMatrix.headers.length === 0) {
+                matrixContainer.classList.add('hidden');
+                return;
+            }
+
+            matrixContainer.classList.remove('hidden');
+            headerRow.innerHTML = '';
+            body.innerHTML = '';
+
+            const thRow = document.createElement('tr');
+            accessMatrix.headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                thRow.appendChild(th);
+            });
+            headerRow.appendChild(thRow);
+
+            accessMatrix.rows.forEach(rowData => {
+                const tr = document.createElement('tr');
+                rowData.forEach((cellData, index) => {
+                    const td = document.createElement('td');
+                    if (index === 0) {
+                        td.textContent = cellData;
+                        td.className = 'text-left font-medium text-gray-700';
+                    } else {
+                        if (cellData === '✔') {
+                            td.innerHTML = '<span class="access-check">✔</span>';
+                        } else if (cellData === '✖') {
+                            td.innerHTML = '<span class="access-cross">✖</span>';
+                        } else if (cellData === 'Limited') {
+                            td.innerHTML = '<span class="access-limited">Limited</span>';
+                        } else {
+                            td.textContent = cellData;
+                        }
+                    }
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            });
+        }
+
+        renderRolesByModuleChart();
+        renderRoleCards();
+    </script>
+</body>
+</html>
