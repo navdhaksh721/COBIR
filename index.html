@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COBIR Repository Index</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for a clean, modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light gray background */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            padding: 1rem;
+        }
+        .container {
+            background-color: white;
+            border-radius: 1rem; /* More rounded corners */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .link-card {
+            background-color: #e0f2f7; /* Light blue background for links */
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease-in-out;
+            display: block; /* Make the whole card clickable */
+            text-decoration: none; /* Remove underline from links */
+            color: #003f5c; /* Dark blue text for links */
+            font-weight: 600;
+            font-size: 1.125rem; /* Larger font size for readability */
+            display: flex; /* Use flexbox for alignment */
+            align-items: center;
+            justify-content: center;
+        }
+        .link-card:hover {
+            background-color: #cce9f2; /* Slightly darker blue on hover */
+            transform: translateY(-3px); /* Slight lift effect */
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.1);
+        }
+        .link-card:last-child {
+            margin-bottom: 0; /* No margin for the last link */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-extrabold text-[#003f5c] mb-4">Welcome to COBIR!</h1>
+        <p class="text-lg text-gray-700 mb-8">
+            Explore the various documents and tools available in this repository. Click on a link below to navigate to the respective page.
+        </p>
+
+        <nav class="space-y-4">
+            <!-- Link to the Persona Workflow Infographic -->
+            <a href="persona_workflow_infographic.html" class="link-card">
+                Oracle ERP Persona Workflow Infographic
+            </a>
+
+            <!-- Links to other HTML files -->
+            <a href="COBIR_ERP_Personas.html" class="link-card">
+                COBIR ERP Personas
+            </a>
+            <a href="COBIR_ERP_Personas_1.html" class="link-card">
+                COBIR ERP Personas (Version 1)
+            </a>
+            <a href="COBIR_Persona-1.html" class="link-card">
+                COBIR Persona 1
+            </a>
+            <a href="COBIR_Persona-2.html" class="link-card">
+                COBIR Persona 2
+            </a>
+            <a href="COBIR_Persona-3.html" class="link-card">
+                COBIR Persona 3
+            </a>
+            <a href="COBIR_Persona-5.html" class="link-card">
+                COBIR Persona 5
+            </a>
+            <a href="COBIR_Recruitment_Visualized.html" class="link-card">
+                COBIR Recruitment Visualized
+            </a>
+            <a href="HSSurvey_FireStore_Secured.html" class="link-card">
+                HSSurvey Firestore Secured
+            </a>
+        </nav>
+    </div>
+</body>
+</html>
