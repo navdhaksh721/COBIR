@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle Fusion Cloud Procurement Process Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8faff; /* Very light blue-white background */
+            color: #333333; /* Darker text for better readability */
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.1), 0 6px 15px -4px rgba(0, 0, 0, 0.05); /* Enhanced shadow */
+        }
+        h1, h2, h3 {
+            color: #2c5282; /* Deep, professional blue */
+            font-weight: 800;
+        }
+        .phase-card {
+            background-color: #e6f0f8; /* Very soft, desaturated blue */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08); /* Subtle shadow for phase cards */
+            position: relative;
+        }
+        .phase-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #2c5282; /* Deep blue */
+            display: flex;
+            align-items: center;
+        }
+        .phase-icon {
+            margin-right: 0.75rem;
+            font-size: 2rem;
+            color: #3182ce; /* Vibrant blue for icons */
+        }
+        .process-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0; /* Lighter border */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03); /* Very subtle shadow */
+        }
+        .process-card:hover {
+            transform: translateY(-3px) scale(1.01); /* Slight lift and scale */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* More pronounced shadow on hover */
+        }
+        .process-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #4a4a4a; /* Slightly softer header text */
+        }
+        .process-card-header span {
+            font-size: 1.25rem;
+        }
+        .process-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            padding-top: 0;
+            color: #4a5568;
+        }
+        .process-details.open {
+            max-height: 500px; /* Adjust as needed based on content */
+            padding-top: 1rem;
+        }
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.5rem;
+        }
+        .step-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .step-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #4299e1; /* Mid-tone blue for bullet points */
+            font-weight: bold;
+        }
+        .arrow-down {
+            font-size: 1.5rem;
+            color: #4299e1; /* Mid-tone blue for arrows */
+            text-align: center;
+            margin: 1.5rem auto;
+            display: block;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .control-buttons button {
+            background-color: #3182ce; /* Vibrant blue for buttons */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .control-buttons button:hover {
+            background-color: #2b6cb0; /* Slightly darker blue on hover */
+            transform: translateY(-1px);
+        }
+        .process-dynamix-link {
+            text-align: right;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .process-dynamix-link a {
+            text-decoration: none;
+        }
+        .process-dynamix-link a:hover {
+            text-decoration: underline;
+        }
+        .process-dynamix-link a strong { /* Target the strong tag inside the link */
+            color: #000000; /* Make the bold text black */
+            font-weight: bold; /* Ensure it's bold */
+        }
+        .process-dynamix-link .blue-x {
+            color: #3182ce; /* Blue color for 'X' */
+            font-weight: bold; /* Ensure 'X' is also bold */
+        }
+    </style>
+</head>
+<body class="bg-[#f8faff]">
+    <div class="container">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-black mb-2">Oracle Fusion Cloud Procurement Process</h1>
+            <p class="text-lg text-gray-600">End-to-End Procure-to-Pay (P2P) Flow</p>
+        </header>
+
+        <section class="card mb-8 p-6 bg-blue-50 border-l-4 border-blue-400 rounded-lg shadow-sm">
+            <h2 class="text-2xl font-bold text-[#2c5282] mb-4">Introduction to Oracle Fusion Cloud Procurement</h2>
+            <p class="text-gray-700">
+                This document outlines the end-to-end Procure-to-Pay (P2P) process within Oracle Fusion Cloud. The P2P cycle is a critical business process that encompasses all activities from identifying a need for goods or services to making the final payment to the supplier. In Oracle Fusion Cloud, this process is streamlined and automated to enhance efficiency, ensure compliance, and provide real-time visibility into procurement activities. This flow covers key phases including requisitioning, purchase order management, goods receipt, invoice processing, and final payment, culminating in integration with the General Ledger.
+            </p>
+        </section>
+
+        <div class="control-buttons flex justify-center space-x-4 mb-8">
+            <button onclick="expandAllDetails()">Expand All Steps</button>
+            <button onclick="collapseAllDetails()">Collapse All Steps</button>
+        </div>
+
+        <section class="phase-card">
+            <h2 class="phase-title"><span class="phase-icon">📝</span> 1. Requisitioning</h2>
+            <p class="text-gray-700 mb-4">The process begins with a user requesting goods or services.</p>
+
+            <div class="process-card" id="p2p04-card" onclick="toggleDetails('p2p04-details')">
+                <div class="process-card-header">
+                    <span>P2P-04 Enter New Requisition Line</span>
+                    <span id="p2p04-arrow">▼</span>
+                </div>
+                <div id="p2p04-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Procurement > Purchase Requisitions > More Tasks > Enter Requisition Line</p>
+                    <ul class="step-list text-sm">
+                        <li>Enter Line-Item details (goods, description, category, quantity, UOM, price, currency)</li>
+                        <li>Discuss Negotiated check box</li>
+                        <li>Enter Requester, Urgent, Requested Delivery, Agreement (if reno)</li>
+                        <li>Enter Supplier, Supplier Site, Supplier Contact</li>
+                        <li>Verify/Set charge account, Deliver to location</li>
+                        <li>Add to cart</li>
+                        <li>Click review</li>
+                        <li>Add Justification, Note to supplier</li>
+                        <li>Check funds</li>
+                        <li>Click OK (after approval)</li>
+                        <li>Click done</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p16-card" onclick="toggleDetails('p2p16-details')">
+                <div class="process-card-header">
+                    <span>P2P-16 Approve or Reject Requisition</span>
+                    <span id="p2p16-arrow">▼</span>
+                </div>
+                <div id="p2p16-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Bell Icon (Notifications)</p>
+                    <ul class="step-list text-sm">
+                        <li>Click Bell Icon from upper right of the Page</li>
+                        <li>To Approve: Click on Approve OR click on Requisition Approval link to see details then Approve</li>
+                        <li>To Reject: Click on Reject OR click on Requisition Approval link to see details then Reject</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="process-dynamix-link">
+                <a href="#">Take me through <strong>Process-Dynami<span class="blue-x">X</span></strong></a>
+            </p>
+        </section>
+
+        <div class="arrow-down">↓</div>
+
+        <section class="phase-card">
+            <h2 class="phase-title"><span class="phase-icon">🛒</span> 2. Purchase Order Management</h2>
+            <p class="text-gray-700 mb-4">Approved requisitions are converted into formal purchase orders.</p>
+
+            <div class="process-card" id="p2p19-card" onclick="toggleDetails('p2p19-details')">
+                <div class="process-card-header">
+                    <span>P2P-19 Process Requisition Lines into a PO</span>
+                    <span id="p2p19-arrow">▼</span>
+                </div>
+                <div id="p2p19-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Procurement > Purchase Orders > Tasks > Process Requisitions</p>
+                    <ul class="step-list text-sm">
+                        <li>Use Search to find necessary Requisition line to be included in PO or choose recent requisition</li>
+                        <li>Highlight Requisition Line(s) to be included</li>
+                        <li>Click Add to Document Builder button</li>
+                        <li>Click Ok to Document Builder form</li>
+                        <li>Validate Information in Document Builder Panel (right-hand side)</li>
+                        <li>Create</li>
+                        <li>Click OK to confirm creation</li>
+                        <li>Submit</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p20-card" onclick="toggleDetails('p2p20-details')">
+                <div class="process-card-header">
+                    <span>P2P-20 Create a Purchase Order</span>
+                    <span id="p2p20-arrow">▼</span>
+                </div>
+                <div id="p2p20-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Procurement > Purchase Order > Task on right hand > Click Create Order</p>
+                    <ul class="step-list text-sm">
+                        <li>Enter Supplier Information, Supplier Site and Contact will auto-fill</li>
+                        <li>Create</li>
+                        <li>In Edit Document the scroll to bottom of page and add line using plus sign</li>
+                        <li>Select type from list</li>
+                        <li>Add description</li>
+                        <li>Select Category</li>
+                        <li>Quantity and Unit of Measurement</li>
+                        <li>Price</li>
+                        <li>Requester</li>
+                        <li>Verify Line in Schedules and Distributions Tab</li>
+                        <li>Save</li>
+                        <li>Submit</li>
+                        <li>Click Ok on Confirmation message</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p21-card" onclick="toggleDetails('p2p21-details')">
+                <div class="process-card-header">
+                    <span>P2P-21 Approve or Reject Purchase Order</span>
+                    <span id="p2p21-arrow">▼</span>
+                </div>
+                <div id="p2p21-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Bell Icon (Notifications)</p>
+                    <ul class="step-list text-sm">
+                        <li>Click on Bell Icon</li>
+                        <li>To Approve: Click on Approve OR click on Purchase Order Approval link to see details then Approve</li>
+                        <li>To Reject: Click on Reject OR click on Purchase Order Approval link to see details then Reject.</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="process-dynamix-link">
+                <a href="#">Take me through <strong>Process-Dynami<span class="blue-x">X</span></strong></a>
+            </p>
+        </section>
+
+        <div class="arrow-down">↓</div>
+
+        <section class="phase-card">
+            <h2 class="phase-title"><span class="phase-icon">📦</span> 3. Receiving Goods</h2>
+            <p class="text-gray-700 mb-4">Once goods or services are delivered, they are recorded in the system.</p>
+
+            <div class="process-card" id="p2p29-card" onclick="toggleDetails('p2p29-details')">
+                <div class="process-card-header">
+                    <span>P2P-29 Receive Goods</span>
+                    <span id="p2p29-arrow">▼</span>
+                </div>
+                <div id="p2p29-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Procurement > My Receipts</p>
+                    <ul class="step-list text-sm">
+                        <li>Use Advanced Search to select Requisition</li>
+                        <li>Highlight requisition and click Receive</li>
+                        <li>Click Show Receipt Quantity to automatically input full amount or enter amount manually.</li>
+                        <li>Enter Waybill, Packing Slip</li>
+                        <li>Submit</li>
+                        <li>Click OK to Confirmation Screen with receipt numbers</li>
+                        <li>Will automatically take you back to My Receipts Page</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p30-card" onclick="toggleDetails('p2p30-details')">
+                <div class="process-card-header">
+                    <span>P2P-30 Return Received Items</span>
+                    <span id="p2p30-arrow">▼</span>
+                </div>
+                <div id="p2p30-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> My Receipts > Tasks > Manage Receipts</p>
+                    <ul class="step-list text-sm">
+                        <li>Click Manage Receipts</li>
+                        <li>Use Search for specific receipt</li>
+                        <li>Highlight Receipt</li>
+                        <li>Click Return</li>
+                        <li>Enter return Quantity</li>
+                        <li>Enter Reason</li>
+                        <li>Submit</li>
+                        <li>Click OK to Confirmation box</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p31-card" onclick="toggleDetails('p2p31-details')">
+                <div class="process-card-header">
+                    <span>P2P-31 Manage Receipts</span>
+                    <span id="p2p31-arrow">▼</span>
+                </div>
+                <div id="p2p31-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> My Receipts > Tasks > Manage Receipts</p>
+                    <ul class="step-list text-sm">
+                        <li>Search for desired Receipt</li>
+                        <li>Click on Receipt Number and review</li>
+                        <li>View Transaction History</li>
+                        <li>Click done to exit Transaction History</li>
+                        <li>Click done to exit selected Receipt and return Manage Receipts</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="process-dynamix-link">
+                <a href="#">Take me through <strong>Process-Dynami<span class="blue-x">X</span></strong></a>
+            </p>
+        </section>
+
+        <div class="arrow-down">↓</div>
+
+        <section class="phase-card">
+            <h2 class="phase-title"><span class="phase-icon">🧾</span> 4. Invoice Processing</h2>
+            <p class="text-gray-700 mb-4">Suppliers send invoices, which are matched against POs and receipts.</p>
+
+            <div class="process-card" id="p2p32-card" onclick="toggleDetails('p2p32-details')">
+                <div class="process-card-header">
+                    <span>P2P-32 Create Invoice Matched to a Purchase Order</span>
+                    <span id="p2p32-arrow">▼</span>
+                </div>
+                <div id="p2p32-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Payables > Invoices > Tasks > Invoices Sub-Category > Create Invoices</p>
+                    <ul class="step-list text-sm">
+                        <li>Search Invoices for PO</li>
+                        <li>Click on Desired PO and all information to fill in from default</li>
+                        <li>Enter Invoice Number for Number</li>
+                        <li>Enter Invoice Amount for Amount</li>
+                        <li>Select Invoice Type</li>
+                        <li>Enter Invoice Date (default is current date)</li>
+                        <li>Select Payment Terms</li>
+                        <li>Enter Terms data (default is current date)</li>
+                        <li>Save</li>
+                        <li>In Lines section, click the Go icon next to Match Invoice Lines</li>
+                        <li>Check Match box next to line</li>
+                        <li>Alter Amount if not paying in full</li>
+                        <li>Apply</li>
+                        <li>OK</li>
+                        <li>Invoice Line amount, PO Number, PO Line and PO Schedule gets defaulted from the PO</li>
+                        <li>Save</li>
+                        <li>Invoice Actions > Validate</li>
+                        <li>Once Validated, Save and Close</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p36-card" onclick="toggleDetails('p2p36-details')">
+                <div class="process-card-header">
+                    <span>P2P-36 Run Create Accounting for Invoices</span>
+                    <span id="p2p36-arrow">▼</span>
+                </div>
+                <div id="p2p36-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Payables > Tasks > Accounting sub-category > Create Accounting</p>
+                    <ul class="step-list text-sm">
+                        <li>Subledger Application: Payables</li>
+                        <li>Ledger: City LEDGER</li>
+                        <li>Report Style: Detail</li>
+                        <li>Submit</li>
+                        <li>Ok to confirm</li>
+                        <li>Click Cancel to Exit</li>
+                        <li>To Validate Process: Navigator > Tools > Scheduled Processes > Refresh > Check Status (Succeeded)</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="process-dynamix-link">
+                <a href="#">Take me through <strong>Process-Dynami<span class="blue-x">X</span></strong></a>
+            </p>
+        </section>
+
+        <div class="arrow-down">↓</div>
+
+        <section class="phase-card">
+            <h2 class="phase-title"><span class="phase-icon">💸</span> 5. Payment Processing</h2>
+            <p class="text-gray-700 mb-4">The final step involves generating and processing payments to suppliers.</p>
+
+            <div class="process-card" id="p2p46-card" onclick="toggleDetails('p2p46-details')">
+                <div class="process-card-header">
+                    <span>P2P-46 Create Payment</span>
+                    <span id="p2p46-arrow">▼</span>
+                </div>
+                <div id="p2p46-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Payables > Payments > Tasks > Payment sub-category > Create Payment</p>
+                    <ul class="step-list text-sm">
+                        <li>Business Unit: City</li>
+                        <li>Select Supplier</li>
+                        <li>Enter Payment Date, Payment Type (Quick), Description</li>
+                        <li>Select Disbursement Bank Account and Payment Process Profile</li>
+                        <li>Click plus sign to add Attachments</li>
+                        <li>Under Invoices to Pay, Click Select and Add to open pop up</li>
+                        <li>Select Invoices</li>
+                        <li>Apply</li>
+                        <li>OK</li>
+                        <li>Save and Close</li>
+                        <li>Ok to confirm</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p48-card" onclick="toggleDetails('p2p48-details')">
+                <div class="process-card-header">
+                    <span>P2P-48 Run Create Accounting for Payments</span>
+                    <span id="p2p48-arrow">▼</span>
+                </div>
+                <div id="p2p48-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Payables > Payments > Tasks > Accounting sub-category > Create Accounting</p>
+                    <ul class="step-list text-sm">
+                        <li>Subledger Application: Payables</li>
+                        <li>Ledger: City LEDGER</li>
+                        <li>Process Category: Payments</li>
+                        <li>Report Style: Detail</li>
+                        <li>Submit</li>
+                        <li>Ok to confirm</li>
+                        <li>Click Cancel to Exit</li>
+                        <li>To Validate Process: Navigator > Tools > Scheduled Processes > Refresh > Check Status (Succeeded)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="p2p49-card" onclick="toggleDetails('p2p49-details')">
+                <div class="process-card-header">
+                    <span>P2P-49 Process Printed Check Payments</span>
+                    <span id="p2p49-arrow">▼</span>
+                </div>
+                <div id="p2p49-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Payables > Payments > Payment Process > Tasks > Payments sub-category > Click Create Printed Payment Files</p>
+                    <ul class="step-list text-sm">
+                        <li>Disbursement Bank Account: Master</li>
+                        <li>Currency: USD</li>
+                        <li>Business Unit: City</li>
+                        <li>Edit From and To Payment Date</li>
+                        <li>Add in other values as needed</li>
+                        <li>Payment Document: Payment Document</li>
+                        <li>Select “Yes” for Print Now or “No”</li>
+                        <li>Submit</li>
+                        <li>Ok to confirm</li>
+                        <li>Cancel to Exit</li>
+                        <li>To Review and Validate: On Overview Page, refresh > Payment Files Requiring Attention > Highlight Process > Click hyperlink > Validate Payment info > Submit > Record Print Status Button</li>
+                        <li>Search and View Payment File: Tasks > Payments sub-category > Manage Payments > Search > Select Payment Reference Number > Click Printed icon > Open File to review</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="process-dynamix-link">
+                <a href="#">Take me through <strong>Process-Dynami<span class="blue-x">X</span></strong></a>
+            </p>
+        </section>
+
+        <div class="arrow-down">↓</div>
+
+        <section class="phase-card">
+            <h2 class="phase-title"><span class="phase-icon">📊</span> 6. General Ledger Integration</h2>
+            <p class="text-gray-700 mb-4">Financial transactions are posted and reconciled to the General Ledger.</p>
+
+            <div class="process-card" id="r2r13-card" onclick="toggleDetails('r2r13-details')">
+                <div class="process-card-header">
+                    <span>R2R-13 Post Journals to the General Ledger</span>
+                    <span id="r2r13-arrow">▼</span>
+                </div>
+                <div id="r2r13-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> Tasks > Subledger Accounting sub-category > Create Accounting</p>
+                    <ul class="step-list text-sm">
+                        <li>Under Basic Option Enter in all Parameters</li>
+                        <li>All except Process Category and Journal Batch is Required</li>
+                        <li>Submit</li>
+                        <li>Ok to Confirmation Box</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-card" id="r2r12-card" onclick="toggleDetails('r2r12-details')">
+                <div class="process-card-header">
+                    <span>R2R-12 Inquiring on Unposted Journals</span>
+                    <span id="r2r12-arrow">▼</span>
+                </div>
+                <div id="r2r12-details" class="process-details">
+                    <p class="mt-2 text-sm"><strong>Navigator:</strong> General Accounting > Journals > Task > Journals sub-category > Manage Journals</p>
+                    <ul class="step-list text-sm">
+                        <li>Search Journal/Journal Batch by entering criteria</li>
+                        <li>Search Batch Status from list of values (Unposted, Selected for Posting, Processing, Posted, Error)</li>
+                        <li>Click Search</li>
+                        <li>Click hyperlink to inquire further on Journals</li>
+                        <li>Click don’t to exit</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="process-dynamix-link">
+                <a href="#">Take me through <strong>Process-Dynami<span class="blue-x">X</span></strong></a>
+            </p>
+        </section>
+
+        <footer class="text-center text-gray-500 text-sm mt-10 flex flex-col items-center justify-center">
+            <p class="mb-2">&copy; 2025 Oracle Fusion Cloud Procurement Process Flow</p>
+        </footer>
+    </div>
+
+    <script>
+        // Function to scroll to a specific process section and open its details
+        function scrollToProcess(elementId) {
+            const detailsElement = document.getElementById(elementId);
+            if (detailsElement) {
+                // Find the parent process-card and ensure its details are open
+                const processCard = detailsElement.closest('.process-card');
+                if (processCard) {
+                    const currentArrow = processCard.querySelector('.process-card-header span:last-child');
+                    if (!detailsElement.classList.contains('open')) {
+                        detailsElement.classList.add('open');
+                        if (currentArrow) currentArrow.textContent = '▲';
+                    }
+                }
+                // Scroll to the process card
+                detailsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Function to toggle details visibility for a single card
+        function toggleDetails(id) {
+            const detailsElement = document.getElementById(id);
+            const arrowElement = document.getElementById(id.replace('-details', '-arrow'));
+
+            if (detailsElement.classList.contains('open')) {
+                detailsElement.classList.remove('open');
+                arrowElement.textContent = '▼';
+            } else {
+                detailsElement.classList.add('open');
+                arrowElement.textContent = '▲';
+            }
+        }
+
+        // Function to expand all details
+        function expandAllDetails() {
+            document.querySelectorAll('.process-details').forEach(detailsElement => {
+                detailsElement.classList.add('open');
+                const arrowElement = document.getElementById(detailsElement.id.replace('-details', '-arrow'));
+                if (arrowElement) arrowElement.textContent = '▲';
+            });
+        }
+
+        // Function to collapse all details
+        function collapseAllDetails() {
+            document.querySelectorAll('.process-details').forEach(detailsElement => {
+                detailsElement.classList.remove('open');
+                const arrowElement = document.getElementById(detailsElement.id.replace('-details', '-arrow'));
+                if (arrowElement) arrowElement.textContent = '▼';
+            });
+        }
+    </script>
+</body>
+</html>
