@@ -82,7 +82,36 @@
         .detail-label { width: 140px; font-weight: bold; color: var(--primary); font-size: 0.9rem; flex-shrink: 0; }
         .detail-text { color: #555; font-size: 0.9rem; line-height: 1.5; }
         .nav-path { background: #eef2f7; padding: 4px 8px; border-radius: 4px; color: #d63384; font-family: monospace; font-weight: bold; }
+/* Custom Link Style for Header */
+        .header-link {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            text-decoration: underline;
+            margin-left: 15px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .header-link:hover { color: var(--accent); }
 
+        .group-header { background: #f8f9fa; padding: 12px 25px; font-weight: bold; color: #666; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+        .step-item { border-bottom: 1px solid #f9f9f9; }
+        .step-summary { padding: 15px 25px; display: flex; align-items: center; cursor: pointer; transition: 0.2s; }
+        .step-summary:hover { background: #fcfcfc; }
+        .step-id { width: 60px; font-weight: bold; color: #aaa; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        .step-name { flex-grow: 1; font-weight: 600; color: #444; }
+
+        .badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; color: white; text-transform: uppercase; font-weight: bold; margin-left: 10px; }
+        .bg-flow { background: #28a745; }
+        .bg-manual { background: #dc3545; }
+        .bg-report { background: #fd7e14; }
+        .bg-sched { background: #6f42c1; }
+        .bg-integ { background: #17a2b8; }
+
+        .step-details { display: none; padding: 25px 25px 25px 85px; background: #fafafa; border-top: 1px dashed #ddd; }
+        .detail-row { margin-bottom: 12px; display: flex; }
+        .detail-label { width: 140px; font-weight: bold; color: var(--primary); font-size: 0.9rem; flex-shrink: 0; }
+        .detail-text { color: #555; font-size: 0.9rem; line-height: 1.5; }
+        .nav-path { background: #eef2f7; padding: 4px 8px; border-radius: 4px; color: #d63384; font-family: monospace; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -134,6 +163,15 @@
             <span class="definition">The process that automatically calculates back-pay when changes (like a raise) are dated in the past.</span>
         </div>
         <div class="dictionary-item">
+            <span class="term">LDG</span>
+            <span class="definition"> Legislative Data Groups (LDGs) are critical structural components used to partition payroll and related data by country, mandatory for ensuring payroll compliance and, at minimum, one per country where an enterprise operates. LDGs associate with Payroll Statutory Units (PSUs) to manage tax, currency, and reporting, acting as a foundation for payroll, benefits, and HR operations. </span>
+        </div>
+       <div class="dictionary-item">
+            <span class="term">PSU</span>
+            <span class="definition"> Payroll Statutory Unit (PSU) is a legal entity registered to pay employees and report taxes, acting as the highest level of the payroll employment model. PSUs are essential for grouping legal employers for statutory reporting, controlling tax calculations, and defining pension/contribution limits. </span>
+        </div>
+       
+		<div class="dictionary-item">
             <span class="term">Effective Date</span>
             <span class="definition">The date on which a transaction affects the system (may differ from current date).</span>
         </div>
@@ -853,3 +891,4 @@
 </body>
 
 </html>
+
